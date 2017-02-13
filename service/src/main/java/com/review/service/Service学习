@@ -1,0 +1,264 @@
+一、startService/stopService
+特点：
+1、运行在主线程中,所以耗时操作应该放在子线程中。
+2、生命周期
+startService开启服务
+第一次开启：onCreate onStartCommand onStart
+重复打开：onStartCommand onStart
+stopService关闭服务
+onDestroy
+3、支持跨进程调用
+Activity可以调用其它应用中的Service，或者其他进程中的Service
+
+关于 onStartCommand(Intent intent, int flags, int startId)的返回值
+1)START_STICKY
+简单来说，就是service进程被kill后，系统会重新创建Service，onCreate...onStartCommand, 但是不保留那些传入的intent,所以intent=null;
+2)START_NOT_STICKY
+简单来说，就是service进程被kill后，不会重新创建。
+3)START_REDELIVER_INTENT
+简单来说，在运行onStartCommand后service进程被kill后，系统将会再次启动service，并传入最后一个intent给onstartCommand。
+直到调用stopSelf(int)才停止传递intent。如果在被kill后还有未处理好的intent，那被kill后服务还是会自动启动。
+因此onstartCommand不会接收到任何null的intent。
+
+二、bindService/unbindService
+完成Activity与Service交互
+默认只支持相同进程内Activity与Service之间的交互，不支持跨进程(即Activity与其他进程内的Service进行bind)
+如果要支持与其他进程的Service绑定，需要使用aidl
+
+1、绑定服务
+ServiceConnection serviceConnection=  new ServiceConnection(){
+
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        Log.d("MyService", "BinderService onServiceConnected ,name="+name+",service="+service);
+        BinderService.MyBinder binder= (BinderService.MyBinder) service;
+        binder.showToast();
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+        Log.d("MyService", "BinderService onServiceDisconnected");
+    }
+};
+intent = new Intent(this, BinderService.class);
+bindService(intent,serviceConnection, Context.BIND_AUTO_CREATE);
+生命周期：onCreate onBind onServiceConnected
+重复绑定服务无效果
+
+2、解绑服务
+unbindService(serviceConnection);
+生命周期：onDestroy
+重复调用unbindService会抛出异常：Service not registered
+
+三、前台Service
+在Service的onCreate中startForeground(1, notification);
+
+四、IntentService
+1、IntentService是继承Service的，那么它包含了Service的全部特性，当然也包含service的生命周期，那么与service不同的是，IntentService在执行onCreate操作的时候，内部开了一个线程，去你执行你的耗时操作。
+2、线程
+IntentService的onCreate、onStartCommand、onDestroy回调方法都是运行在主线程中的，onHandleIntent是运行在工作线程中的
+因为只有一个线程，IntentService不能并行处理多个job，只能依次处理，一个接一个，当所有的job完成后，会自动执行onDestroy方法而无需我们自己调用stopSelf()或stopSelf(startId)方法。
+3、 public int onStartCommand(Intent intent, int flags, int startId)
+startId为当前开启Service的次数，比如连续开启2次IntentService
+MyIntentService onStartCommand,flags=0,startId=1,thread=main
+MyIntentService,onHandleIntent ,thread=IntentService[MyIntentService]
+MyIntentService onStartCommand,flags=0,startId=2,thread=main
+MyIntentService,onHandleIntent ,thread=IntentService[MyIntentService]
+MyIntentService onDestroy,thread=main
+
+五、在其他进程中开启Service
+<service android:name=".ProcessService" android:process=":remote"/>
+则ProcessService运行在remote进程中的主线程中。
+缺点：不支持不同进程内activity与service之间的bind, 要持支跨进程绑定，则需要使用aidl
+
+六、AIDL
+AIDL（Android Interface Definition Language）是Android接口定义语言的意思
+它可以用于让某个Service与多个应用程序组件之间进行跨进程通信，从而可以实现多个应用程序共享同一个Service的功能。
+
+AIDL对Java类型的支持:
+1.AIDL支持Java原始数据类型。
+2.AIDL支持String和CharSequence。
+3.AIDL支持传递其他AIDL接口，但你引用的每个AIDL接口都需要一个import语句，即使位于同一个包中。
+4.AIDL支持传递实现了Android.os.Parcelable接口的复杂类型，同样在引用这些类型时也需要import语句。(Parcelable接口告诉Android运行时在封送(marshalling)和解封送(unmarshalling)过程中实现如何序列化和反序列化对象，你可以很容易联想到java.io.Serializable接口。有些朋友可能会有疑问，两种接口功能确实类似，但为什么Android不用内置的Java序列化机制，而偏偏要搞一套新东西呢？这是因为Android团队认为Java中的序列化太慢，难以满足Android的进程间通信需求，所以他们构建了Parcelable解决方案。Parcelable要求显示序列化类的成员，但最终序列化对象的速度将快很多。另外要注意的是，Android提供了两种机制来将数据传递给另一个进程，第一种是使用Intent将数据束(Bundle)传递给活动，第二种也就是Parcelable传递给服务。这两种机制不可互换，不要混淆。也就是说，Parcelable无法传递给活动，只能用作AIDL定义的一部分)。
+5.AIDL支持java.util.List和java.util.Map，但是有一些限制。集合中项的允许数据类型包括Java原始类型、String、CharSequence或是android.os.Parcelable。无需为List和Map提供import语句，但需要为Parcelable提供import语句。
+6.非原始类型中，除了String和CharSequence以外，其余均需要一个方向指示符。方向指示符包括in、out、和inout。in表示由客户端设置，out表示由服务端设置，inout表示客户端和服务端都设置了该值。
+
+自定义数据类型：
+1、创建Person类
+public class Person implements Parcelable
+安装android parcelable code generator 插件可快速实现
+在同一包下创建Person.aidl文件，代码如下：
+package com.review.aidl.client.bean; //包名
+parcelable Person;
+2、在aidl接口使用自定义数据类型
+package com.review.aidl.client;
+import com.review.aidl.client.bean.Person; //引入
+interface MyAIDL {
+       String getInfor(String s);
+       /*
+       * 参数上加入方向指示符in，代表参数由客户端设置，我们还需要为Person提供一个import语句(虽然说在同一个包下).
+       */
+       String greet(in Person person);
+}
+
+
+编写AIDL服务
+1、右键新建aidl文件，名叫MyAIDL.aidl
+interface MyAIDL {
+      String getInfor(String s);
+}
+sync一下工程，会在build..generated..source..aidl..androidTest..debug 里面发现由aidl文件生成的java文件了
+public interface MyAIDL extends android.os.IInterface {
+    /**
+     * Local-side IPC implementation stub class.
+     */
+    public static abstract class Stub extends android.os.Binder implements com.review.aidl.client.MyAIDL {
+        private static final java.lang.String DESCRIPTOR = "com.review.aidl.client.MyAIDL";
+
+        /**
+         * Construct the stub at attach it to the interface.
+         */
+        public Stub() {
+            this.attachInterface(this, DESCRIPTOR);
+        }
+
+        /**
+         * Cast an IBinder object into an com.review.aidl.client.MyAIDL interface,
+         * generating a proxy if needed.
+         */
+        public static com.review.aidl.client.MyAIDL asInterface(android.os.IBinder obj) {
+            if ((obj == null)) {
+                return null;
+            }
+            android.os.IInterface iin = obj.queryLocalInterface(DESCRIPTOR);
+            if (((iin != null) && (iin instanceof com.review.aidl.client.MyAIDL))) {
+                return ((com.review.aidl.client.MyAIDL) iin);
+            }
+            return new com.review.aidl.client.MyAIDL.Stub.Proxy(obj);
+        }
+
+        @Override
+        public android.os.IBinder asBinder() {
+            return this;
+        }
+
+        @Override
+        public boolean onTransact(int code, android.os.Parcel data, android.os.Parcel reply, int flags) throws android.os.RemoteException {
+            switch (code) {
+                case INTERFACE_TRANSACTION: {
+                    reply.writeString(DESCRIPTOR);
+                    return true;
+                }
+                case TRANSACTION_getInfor: {
+                    data.enforceInterface(DESCRIPTOR);
+                    java.lang.String _arg0;
+                    _arg0 = data.readString();
+                    java.lang.String _result = this.getInfor(_arg0);
+                    reply.writeNoException();
+                    reply.writeString(_result);
+                    return true;
+                }
+            }
+            return super.onTransact(code, data, reply, flags);
+        }
+
+        private static class Proxy implements com.review.aidl.client.MyAIDL {
+            private android.os.IBinder mRemote;
+
+            Proxy(android.os.IBinder remote) {
+                mRemote = remote;
+            }
+
+            @Override
+            public android.os.IBinder asBinder() {
+                return mRemote;
+            }
+
+            public java.lang.String getInterfaceDescriptor() {
+                return DESCRIPTOR;
+            }
+
+            @Override
+            public java.lang.String getInfor(java.lang.String s) throws android.os.RemoteException {
+                android.os.Parcel _data = android.os.Parcel.obtain();
+                android.os.Parcel _reply = android.os.Parcel.obtain();
+                java.lang.String _result;
+                try {
+                    _data.writeInterfaceToken(DESCRIPTOR);
+                    _data.writeString(s);
+                    mRemote.transact(Stub.TRANSACTION_getInfor, _data, _reply, 0);
+                    _reply.readException();
+                    _result = _reply.readString();
+                } finally {
+                    _reply.recycle();
+                    _data.recycle();
+                }
+                return _result;
+            }
+        }
+
+        static final int TRANSACTION_getInfor = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);
+    }
+
+    public java.lang.String getInfor(java.lang.String s) throws android.os.RemoteException;
+}
+2、编写Service
+将我们的AIDL接口转换为Binder提供出去，并重写AIDL接口中的方法
+public class MyAIDLService extends Service {
+    public final static String TAG = "MyService";
+
+   //提供aidl接口服务
+    private MyAIDL.Stub binder = new MyAIDL.Stub() {
+        @Override
+        public String getInfor(String s) throws RemoteException {
+            Log.d(TAG, "MyAIDLService s="+s);
+            return "我是 aidl 接口返回的字符串";
+        }
+    };
+    @Override
+    public IBinder onBind(Intent intent) {
+        Log.d(TAG, "MyAIDLService onBind");
+        return binder;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.d(TAG, "MyAIDLService onCreate");
+    }
+
+}
+在manifest.xml注册Service
+<service android:name=".MyAIDLService" android:process=":aidl" android:exported="true">
+    <intent-filter>
+        <action android:name="com.interview.action.aidl"></action>
+    </intent-filter>
+</service>
+
+3、在本应用中绑定其他进程中的Service
+ServiceConnection  serviceConnection= new ServiceConnection(){
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MyAIDL myAIDL = MyAIDL.Stub.asInterface(service);
+            try {
+                String info = myAIDL.getInfor("hello world");
+                Log.d("MyService","onServiceConnected,info="+info);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.d("MyService","onServiceDisconnected");
+        }
+    };
+
+Intent intent = new Intent(this, MyAIDLService.class);
+bindService(intent,serviceConnection, Context.BIND_AUTO_CREATE);
+
+4、在其他应用中绑定远程服务
+Intent intent = new Intent();
+intent.setComponent(new ComponentName("com.review.aidl.client","com.review.aidl.client.MyAIDLService"));
+bindService(intent,aidlConnection,Context.BIND_AUTO_CREATE);

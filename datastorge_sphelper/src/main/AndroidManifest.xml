@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.review.datastorge.sphelper">
+
+    <application>
+        <provider
+            android:name=".SPContentProvider"
+            android:authorities="com.review.sphelper"
+            android:process=":sphelper"
+            android:exported="false" />
+    </application>
+
+</manifest>

@@ -1,0 +1,17 @@
+一、进程优先级
+Android中的进程是托管的，当系统进程空间紧张的时候，会依照优先级自动进行进程的回收。Android将进程分为6个等级,
+它们按优先级顺序由高到低依次是:
+前台进程( FOREGROUND_APP)
+可视进程(VISIBLE_APP )
+次要服务进程(SECONDARY_SERVER )
+后台进程 (HIDDEN_APP)
+内容供应节点(CONTENT_PROVIDER)
+空进程(EMPTY_APP)
+
+二、多进程开发
+开发一个多进程应用的时候，我们往往无法避免在多个进程之间共享数据。
+多进程共享数据的方法有很多种，在Android中常用的有：
+SharedPreferences(多进程模式)、广播、Socket、ContentProvider、Messenger、AIDL等。这些方法适用于不同的使用场景，又有各自的局限性。
+
+ContentProvider、Messenger、AIDL等方式都是基于Binder实现的
+

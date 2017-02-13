@@ -1,0 +1,64 @@
+参考
+http://blog.csdn.net/lmj623565791/article/details/37970961
+http://blog.csdn.net/lmj623565791/article/details/37992017
+
+1、生命周期
+onAttach...onCreate...onCreateView..onActivityCreated..onStart..onResume..onPause..onStop..onDestroyView..onDestroy..onDetach
+2、通过FragmentManager在代码中添加和在xml中使用<fragment name="">标签添加
+3、在Fragment中直接使用startActivityForResult();
+不能使用getActivity().startActivityForResult();
+4、ViewPager中切换界面Fragment被销毁的问题分析
+ViewPager的默认加载方式是缓存当前界面前后相邻的两个界面，即最多共缓存包括当前界面在内的三个界面信息
+解决方案：
+方案一：设置ViewPager的缓存界面数
+此方案适用于界面数较少的情况，避免缓存界面太多导致内存吃紧。
+viewpager.setOffscreenPageLimit(fragmentCount);
+方案二：保存状态并恢复
+此方案适用于可用界面信息可由状态保存和恢复实现的情况。
+在onDestroyView方法内保存相关信息，在onCreateView方法内恢复信息设置。
+方案三（推荐）：复用Fragment的RootView
+此方案适用通用场景，推荐使用。
+步骤1：在onDestroyView方法内把Fragment的RootView从ViewPager中remove
+@Override
+ public void onDestroyView() {
+     LogUtils.d(TAG , "-->onDestroyView");
+     super .onDestroyView();
+     if (null != FragmentView) {  //从ViewPager中移除
+         ((ViewGroup) mFragmentView.getParent()).removeView(mFragmentView);
+     }
+ }
+步骤2：在onCreateView方法内复用RootView
+ @Override
+  public View onCreateView(LayoutInflater inflater, ViewGroup container,
+          Bundle savedInstanceState) {
+          LogUtils.d (TAG, "-->onCreateView");
+          if (null == mFragmentView) { //第一次创建
+               mFragmentView = inflater.inflate(R.layout.fragment, container, false);
+           }
+     return mFragmentView ;
+ }
+
+ViewPager+Fragment动态加载数据
+1、setUserVisibleHint
+上一个 fragment setUserVisibleHint设置为 false，要展现的 Fragment setUserVisibleHint 设置为 true。
+2、onHiddenChanged
+可以在 hide = false 时，做一些资源回收操作，在 hide = true 时，做一些刷新操作。
+
+ViewPager动态加载和显示Fragment
+private void addOrShowFragment(FragmentTransaction transaction, Fragment fragment) {
+        if (currentFragment == fragment)
+            return;
+            //隐藏上一个Fragment，添加或显示下一个Fragment
+        if (!fragment.isAdded()) { // 如果当前fragment未被添加，则添加到Fragment管理器中
+            transaction.hide(currentFragment).add(R.id.fl_content, fragment).commit();
+        } else {
+            transaction.hide(currentFragment).show(fragment).commit();
+        }
+        currentFragment.setUserVisibleHint(false);
+        currentFragment = (BaseFragment) fragment;
+        currentFragment.setUserVisibleHint(true);
+    }
+
+
+
+
