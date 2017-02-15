@@ -40,6 +40,28 @@ newState：
     PackageManager.COMPONENT_ENABLED_STATE_DISABLED 禁用组件
 flags：PackageManager.DONT_KILL_APP
 
+三、给应用增加多个入口
+      <activity
+        android:name=".MainActivity"
+        android:label="Activity模块"
+        android:icon="@mipmap/ic_launcher"
+        >
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+      </activity>
+
+    <!-- 可配置多个入口，在桌面上会显示名字和图标-->
+    <activity android:name=".TwoActivity"
+        android:label="其他入口"
+        android:icon="@mipmap/ic_launcher"
+        >
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+    </activity>
 
 
 

@@ -260,6 +260,7 @@ NestedScrollView
 对于静态集合类，集合内直接存放一些占用大量内存的对象（而不是通过弱引用存放），那么随着集合 size 的增大，会导致内存占用不断上升，而在 Activity 等销毁时，集合中的这些对象无法被回收，导致内存泄露。
 避免将Context保存为静态对象。
 
+
 几种内存检测工具的介绍
 Memory Monitor
 Allocation Tracker
@@ -475,6 +476,8 @@ Binder一个很重要的作用是：将客户端的请求参数通过Parcel包�
 31.Android性能优化
 http://blog.csdn.net/zhangquanit/article/details/54693199
 http://blog.csdn.net/qq_30513483/article/details/53112253
+性能优化检测工具
+http://www.jianshu.com/p/b3b09fa29f65
 
 Android性能优化涉及到很多方面，大致归类为如下几点：
 1）使用异步，避免阻塞主线程，保持APP的高度响应
@@ -564,5 +567,32 @@ public int size() {
     return mSize;
 }
 
+35.Android 中的Dalvik和ART是什么,有啥区别?
+http://www.jianshu.com/p/58f817d176b7
+1)Dalvik虚拟机
+Dalvik是Google公司自己设计用于Android平台的虚拟机。
+它可以支持已转换为 .dex格式的Java应用程序的运行，.dex格式是专为Dalvik设计的一种压缩格式，适合内存和处理器速度有限的系统。
+Dalvik 经过优化，允许在有限的内存中同时运行多个虚拟机的实例，并且每一个Dalvik 应用作为一个独立的Linux 进程执行。独立的进程可以防止在虚拟机崩溃的时候所有程序都被关闭。
+2)Dalvik和JVM有啥关系？
+主要区别：
+Dalvik是基于寄存器的，而JVM是基于栈的。
+Dalvik运行dex文件，而JVM运行java字节码
+自Android 2.2开始，Dalvik支持JIT（just-in-time，即时编译技术）。
 
+当Android启动时，Dalvik VM 监视所有的程序（APK），并且创建依存关系树，为每个程序优化代码并存储在Dalvik缓存中。
+Dalvik第一次加载后会生成Cache文件(/data/dalvik-cache/)，以提供下次快速加载，所以第一次会很慢。
 
+一般来说,基于堆栈的机器必须使用指令才能从堆栈上加载和操作数据,因此,相对基于寄存器的机器，它们需要更多的指令才能实现相同的性能。但是基于寄存器机器上的指令必须经过编码,因此,它们的指令往往更大。
+3)什么是ART？
+即Android Runtime
+ART 的机制与 Dalvik 不同。
+在Dalvik下，应用每次运行的时候，字节码都需要通过即时编译器（just in time ，JIT）转换为机器码，这会拖慢应用的运行效率，
+而在ART 环境中，应用在第一次安装的时候，字节码就会预先编译成机器码，使其成为真正的本地应用。这个过程叫做预编译（AOT,Ahead-Of-Time）。这样的话，应用的启动(首次)和执行都会变得更加快速。
+优点：
+1、系统性能的显著提升。
+2、应用启动更快、运行更快、体验更流畅、触感反馈更及时。
+3、更长的电池续航能力。
+4、支持更低的硬件。
+缺点：
+1.机器码占用的存储空间更大
+2.应用的安装时间会变长。
