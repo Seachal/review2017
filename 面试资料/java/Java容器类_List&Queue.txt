@@ -4,8 +4,7 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
 >>1 表示除以2  <<1表示乘以2
 ---------------------------------ArrayList
 List 接口的大小可变数组的实现,元素是有序的。
-每个 ArrayList 实例都有一个容量。该容量是指用来存储列表元素的数组的大小。它总是至少等于列表的大小。
-随着向 ArrayList 中不断添加元素，其容量也自动增长。
+默认容量为10，当容量不够时自动增长  size=oldSize+oldSize/2;
 
 public class ArrayList<E> extends AbstractList<E> implements Cloneable, Serializable, RandomAccess{
 private static final int MIN_CAPACITY_INCREMENT = 12;//数组增长的最小size
@@ -353,8 +352,11 @@ public ListIterator<E> listIterator() {
 缺点：将读写方法都同步了，会对读操作降低效率。
 
 二、java.util.concurrent并发包
-ConcurrentHashMap
-CopyOnWriteArrayList
+传统集合在迭代时不能对集合进行修改,如果需要在迭代时对集合进行修改 可以使用同步集合类
+ConcurrentHashMap、        HashMap的同步类
+ConcurrentSkipListMap、    TreeMap的同步类
+ConcurrentSkipListSet、    TreeSet的同步类
+CopyOnWriteArrayList       ArrayList的同步类
 CopyOnWriteArraySet
 
 --------------------------------------------CopyOnWriteArrayList

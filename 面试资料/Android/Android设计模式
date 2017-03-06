@@ -2,7 +2,8 @@ Android设计模式
 http://blog.csdn.net/bboyfeiyu/article/details/44563871
 
 1、单列模式
-在Android系统中，我们经常会通过Context获取系统级别的服务，比如WindowsManagerService, ActivityManagerService等，更常用的是一个叫LayoutInflater的类。这些服务会在合适的时候以单例的形式注册在系统中，在我们需要的时候就通过Context的getSystemService(String name)获取。
+在Android系统中，我们经常会通过Context获取系统级别的服务，比如WindowsManagerService, ActivityManagerService等，更常用的是一个叫LayoutInflater的类。
+这些服务会在合适的时候以单例的形式注册在系统中，在我们需要的时候就通过Context的getSystemService(String name)获取。
 比如
 LayoutInflater inflater = LayoutInflater.from(context);
 TelecomManager telephoneManager = (TelecomManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -94,7 +95,7 @@ class ContextImpl extends Context {
 它整个执行过程其实是一个框架，具体的实现都需要子类来完成。
 
 5、适配器模式
-比如Adapter
+ArrayAdapter、CursorAdapter
 
 6、观察者模式
 观察者(N)----被观察者(1)
@@ -161,7 +162,7 @@ Android中的时间插值器Interpolator就使用了策略模式
 
 Interpolator mInterpolator;  //成员变量
 public boolean getTransformation(long currentTime, Transformation outTransformation) {
-        //计算处理当前动画的时间点...  不同时间时间插值器使得时间非线性改变，才能是的动画效果有快有慢
+        //计算处理当前动画的时间点...  不同时间时间插值器使得时间非线性改变，才使得动画效果有快有慢
         final float interpolatedTime = mInterpolator.getInterpolation(normalizedTime);
         //后续处理，以此来应用动画效果...
         applyTransformation(interpolatedTime, outTransformation);
@@ -314,17 +315,3 @@ invokerRole.setCommand1(command1);//为调用者指定命令对象1
 invokerRole.setCommand2(command2);//为调用者指定命令对象2
 invokerRole.invoke(0);              //发起调用命令请求
 invokerRole.invoke(1);              //发起调用命令请求
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -67,6 +67,59 @@ Loader通过实现监听器（比如ContentObserver，BroadcastReceiver等），
 
 二、AsyncTask
 
+public abstract class AsyncTask<Params, Progress, Result> {
+    private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors(); //系统核数，比如4核的手机  就是4
+    private static final int CORE_POOL_SIZE = CPU_COUNT + 1;
+    private static final int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
+    private static final int KEEP_ALIVE = 1;
+    private static final BlockingQueue<Runnable> sPoolWorkQueue =
+            new LinkedBlockingQueue<Runnable>(128);
+             //线程池
+    public static final Executor THREAD_POOL_EXECUTOR
+            = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE,
+                    TimeUnit.SECONDS, sPoolWorkQueue, sThreadFactory);
+             //串行的Exector  同时执行一个任务，执行完了执行下一个
+    public static final Executor SERIAL_EXECUTOR = new SerialExecutor();
+    private static volatile Executor sDefaultExecutor = SERIAL_EXECUTOR;
+
+    private static InternalHandler sHandler; //将doInBackground后台线程执行的结果发送到UI主线程
+
+    private final WorkerRunnable<Params, Result> mWorker; //实现了Callable
+    private final FutureTask<Result> mFuture; // new FutureTask<Result>(mWorker) 用来管理mWorker
+
+    private volatile Status mStatus = Status.PENDING;
+
+    private final AtomicBoolean mCancelled = new AtomicBoolean(); //是否调用cancel取消任务
+    private final AtomicBoolean mTaskInvoked = new AtomicBoolean(); //任务是否已执行标识，进入WorkerRunnable.call()方法
+    //串行任务Executor，同时只能
+    private static class SerialExecutor implements Executor {
+        final ArrayDeque<Runnable> mTasks = new ArrayDeque<Runnable>(); //任务队列
+        Runnable mActive; //当前正在执行的任务
+
+        public synchronized void execute(final Runnable r) {
+            //将任务添加到队列中
+            mTasks.offer(new Runnable() {
+                public void run() {
+                    try {
+                        r.run();
+                    } finally {
+                        scheduleNext(); //一个接一个的执行
+                    }
+                }
+            });
+             //如果当前没有任务，则立即执行
+            if (mActive == null) {
+                scheduleNext();
+            }
+        }
+
+        protected synchronized void scheduleNext() {
+            if ((mActive = mTasks.poll()) != null) {
+                THREAD_POOL_EXECUTOR.execute(mActive); //转交给线程池去执行
+            }
+        }
+    }
+
 三、AsyncTaskLoader与AsyncTask的比较
 1、相同点
 都能完成异步加载任务

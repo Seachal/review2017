@@ -33,6 +33,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         methodList.add("setTextColor");
         methodList.add("setTextSize");
         methodList.add("setText");
+
     }
 
     private int index;

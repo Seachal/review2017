@@ -27,7 +27,7 @@ mWindow = new PhoneWindow(this, window);
 mWindow.setCallback(this);
 
 }
-Window聚合了DocerView,当用户调用setContentView的时候会把一颗View树仍给DocerView.View树
+Window聚合了DocerView,当用户调用setContentView的时候会把一颗View树仍给DocerView.
 DecorView是PhoneWindow的一个内部类。实现很简单，它默认会包含一个灰色的标题栏，然后在标题栏下边会包含一个空白区域用来当用户调用setContentView的时候放置用户View，并传递事件
 我们在Activity中调用setContentView其实是调用PhoneWindow.setContentView，下面看下PhoneWindow的setContentView：
 

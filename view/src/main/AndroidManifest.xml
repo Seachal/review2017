@@ -16,7 +16,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.review.view.TestActivity" />
+        <activity android:name="com.review.view.TestActivity"  />
         <activity android:name="com.review.view.CustomActivity" />
     </application>
 

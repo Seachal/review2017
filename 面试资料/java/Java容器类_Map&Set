@@ -69,6 +69,8 @@ public LinkedHashMap(
     newTailA.prv=newTailB;
 }
 }
+
+
 --------------------------------TreeMap
 TreeMap实现SortMap接口，能够把它保存的记录根据键排序,默认是按键值的升序排序，也可以指定排序的比较器
 关于排序：

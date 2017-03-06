@@ -1,0 +1,153 @@
+一、dispatchTouchEvent触发顺序：
+Activity------>PhoneWindow------>DecorView(沿着View树向下传递)
+
+1、触摸事件默认都是从Activity的DispatchTouchEvent开发分发的
+public boolean dispatchTouchEvent(MotionEvent ev) {
+    if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+        onUserInteraction();
+    }
+    if (getWindow().superDispatchTouchEvent(ev)) { //然后将事件传递给Window，调用PhoneWindow的dispatchTouchEvent
+        return true;
+    }
+    return onTouchEvent(ev); //如View都不消费事件
+}
+
+2、PhoneWindow中,交给DecorView的superDispatchTouchEvent处理
+@Override
+public boolean superDispatchTouchEvent(MotionEvent event) {
+    return mDecor.superDispatchTouchEvent(event);
+}
+
+3、DecorView中处理dispatchTouchEvent
+private final class DecorView extends FrameLayout{
+       public boolean superDispatchTouchEvent(MotionEvent event) {
+            return super.dispatchTouchEvent(event);
+        }
+}
+
+Activity
+   ---dispatchTouchEvent
+   ---OnTouchEvent
+ViewGroup
+   ---dispatchTouchEvent
+   ---onInterceptTouchEvent
+   ---OnTouchEvent
+View
+   ---dispatchTouchEvent
+   ---OnTouchEvent
+
+二、dispatchTouchEvent->onInterceptTouchEvent->onTouchEvent
+Activity
+   --RootLinearLayout
+     --MyRelativeLayout
+        --MyTextView
+
+ Activity------dispatchTouchEvent-------ACTION_DOWN
+ RootLinearLayout------dispatchTouchEvent-------ACTION_DOWN
+ RootLinearLayout------onInterceptTouchEvent-------ACTION_DOWN
+ MyRelativeLayout------dispatchTouchEvent-------ACTION_DOWN
+ MyRelativeLayout------onInterceptTouchEvent-------ACTION_DOWN
+ MyTextView------dispatchTouchEvent-------ACTION_DOWN
+ MyTextView------onTouchEvent-------ACTION_DOWN
+ MyRelativeLayout------onTouchEvent-------ACTION_DOWN
+ RootLinearLayout------onTouchEvent-------ACTION_DOWN
+ Activity------onTouchEvent-------ACTION_DOWN
+ Activity------dispatchTouchEvent-------ACTION_MOVE
+ Activity------onTouchEvent-------ACTION_MOVE
+ Activity------dispatchTouchEvent------ACTION_UP
+ Activity------onTouchEvent------ACTION_UP
+
+
+1、ViewGroup
+   dispatchTouchEvent->onInterceptTouchEvent，如果不拦截事件，则继续向下分发，否则交给自己的onTouchEvent处理
+   如果dispatchTouchEvent返回true，则不交给自己的onInterceptTouchEvent，所以很少去重写dispatchTouchEvent方法，而是重写onInterceptTouchEvent
+2、View
+   dispatchTouchEvent->onTouchEvent
+
+onTouchEvent返回false，表示不消费事件，交由父类去处理，并且不再接受后续事件，比如ActionDown返回false，则不再接收ActionMove和ActionUp。
+
+三、OnTouchListener & OnClickListener
+给View设置onTouchListener，则onTouch方法会比onTouchEvent先执行，我们看看View中的dispatchTouchEvent方法
+onClickListener或onLongClickListener会比onTouchEvent后执行
+
+public class View {
+ public boolean dispatchTouchEvent(MotionEvent event) {
+
+        boolean result = false;
+        if (onFilterTouchEventForSecurity(event)) {
+            ListenerInfo li = mListenerInfo;
+            if (li != null && li.mOnTouchListener != null
+                    && (mViewFlags & ENABLED_MASK) == ENABLED
+                    && li.mOnTouchListener.onTouch(this, event)) { //先执行onTouch
+                result = true;
+            }
+
+           //如果onTouch不消费事件，则交由onTouchEvent执行
+            if (!result && onTouchEvent(event)) {
+                result = true;
+            }
+        }
+        return result;
+    }
+
+ public boolean onTouchEvent(MotionEvent event) {
+        final float x = event.getX();
+        final float y = event.getY();
+        final int viewFlags = mViewFlags;
+        final int action = event.getAction();
+
+        //先处理onTouchEvent
+        if (mTouchDelegate != null) {
+            if (mTouchDelegate.onTouchEvent(event)) { //如果消费了onTouchEvent，则直接返回
+                return true;
+            }
+        }
+        //再处理onClick，onLongClick
+        if (((viewFlags & CLICKABLE) == CLICKABLE ||
+                (viewFlags & LONG_CLICKABLE) == LONG_CLICKABLE) ||
+                (viewFlags & CONTEXT_CLICKABLE) == CONTEXT_CLICKABLE) {
+            switch (action) {
+                case MotionEvent.ACTION_UP:
+                    boolean prepressed = (mPrivateFlags & PFLAG_PREPRESSED) != 0;
+                            if (!focusTaken) {
+                                if (mPerformClick == null) {
+                                    mPerformClick = new PerformClick();
+                                }
+
+                                if (!post(mPerformClick)) {
+                                    performClick(); //执行点击事件
+                                }
+                            }
+                    break;
+                case MotionEvent.ACTION_DOWN:
+                    break;
+                case MotionEvent.ACTION_CANCEL:
+                    break;
+
+                case MotionEvent.ACTION_MOVE:
+                    break;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+     //执行点击事件
+    public boolean performClick() {
+        final boolean result;
+        final ListenerInfo li = mListenerInfo;
+        if (li != null && li.mOnClickListener != null) {
+            playSoundEffect(SoundEffectConstants.CLICK); //点击音效
+            li.mOnClickListener.onClick(this); //执行onClick
+            result = true;
+        } else {
+            result = false;
+        }
+
+        sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_CLICKED); //发送点击事件
+        return result;
+    }
+
+
+}

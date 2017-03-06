@@ -3,11 +3,14 @@
 http://www.jianshu.com/p/d1efe2f31b6d
 https://github.com/JackyAndroid/AndroidInterview-Q-A/blob/master/README-CN.md
 https://github.com/GeniusVJR/LearningNotes
+http://www.jianshu.com/p/d1efe2f31b6d
+各大技术团队博客
+http://blog.csdn.net/tengdazhang770960436/article/details/49963983
 
 
 四大组件
 一、Activity
-四种启动方式：standard、singTask、singleTop、singInstance
+四种启动方式：standard、singleTask、singleTop、singInstance
 Fragment
 http://blog.csdn.net/lmj623565791/article/details/37970961
 http://blog.csdn.net/lmj623565791/article/details/37992017
@@ -47,9 +50,9 @@ sendOrderedBroadcast(intent, null);
 
 android:priority设置优先级，范围0~1000
 <receiver android:name=".SmsReceiver" >
-   <intent-filter android:priority="100">
-    <action android:name="android.provider.Telephony.SMS_RECEIVED" />
-   </intent-filter>
+<intent-filter android:priority="100">
+<action android:name="android.provider.Telephony.SMS_RECEIVED" />
+</intent-filter>
 </receiver>
 BroadcastReceiver可以使用setResultXX函数来结果传给下一个BroadcastReceiver，通过getResultXX函数来取得上个BroadcastReceiver返回的结果，并可以abort系列函数来让系统丢弃该广播让，使用该广播不再传送到别的BroadcastReceiver。
 相同android:priority属性的话，先注册的将先收到广播。
@@ -115,13 +118,13 @@ Service默认是运行在与应用同一个进程的主线程中的，因此不�
 与Service不同的是，IntentService在onCreate中开启了一个HandlerThread线程，异步执行任务。因此不会阻塞主线程。
 @Override
 public void onCreate() {
-    super.onCreate();
-    //创建HandlerThread线程，用于产生Looper，并开启Looper.loop
-    HandlerThread thread = new HandlerThread("IntentService[" + mName + "]");
-    thread.start();
+super.onCreate();
+//创建HandlerThread线程，用于产生Looper，并开启Looper.loop
+HandlerThread thread = new HandlerThread("IntentService[" + mName + "]");
+thread.start();
 
-    mServiceLooper = thread.getLooper();
-    mServiceHandler = new ServiceHandler(mServiceLooper); //用HandlerThread创建的Looper处理消息，因此运行在子线程中。
+mServiceLooper = thread.getLooper();
+mServiceHandler = new ServiceHandler(mServiceLooper); //用HandlerThread创建的Looper处理消息，因此运行在子线程中。
 }
 
 2)AIDL
@@ -163,44 +166,44 @@ Handler用于发送和处理消息，和线程没有关系，消息处理所在�
 Thread：线程
 HandlerThread：
 public class HandlerThread extends Thread {
- private Looper mLooper;
-  protected void onLooperPrepared() {
+private Looper mLooper;
+protected void onLooperPrepared() {
 
-    }
+}
 
-    @Override
-    public void run() {
-        mTid = Process.myTid();
-        Looper.prepare();//生成一个Looper
-        synchronized (this) {
-            mLooper = Looper.myLooper();//获取当前线程创建的Looper
-            notifyAll();
-        }
-        Process.setThreadPriority(mPriority);
-        onLooperPrepared(); //Looper创建完毕
-        Looper.loop(); //开始消息循环处理
-        mTid = -1;
+@Override
+public void run() {
+    mTid = Process.myTid();
+    Looper.prepare();//生成一个Looper
+    synchronized (this) {
+        mLooper = Looper.myLooper();//获取当前线程创建的Looper
+        notifyAll();
     }
-     public Looper getLooper() {
-         return mLooper;
-     }
+    Process.setThreadPriority(mPriority);
+    onLooperPrepared(); //Looper创建完毕
+    Looper.loop(); //开始消息循环处理
+    mTid = -1;
+}
+ public Looper getLooper() {
+     return mLooper;
+ }
 }
 HandlerThread本身是Thread的子类，作用是创建一个与该Thread绑定的Looper，之后与该Looper绑定Handler发送的消息，都会在该线程中处理
 IntentService中就使用HandlerThread
 public void onCreate() {
-        HandlerThread thread = new HandlerThread("IntentService[" + mName + "]");
-        thread.start(); //开启线程
-        mServiceLooper = thread.getLooper();//当前线程绑定的Looper
-        mServiceHandler = new ServiceHandler(mServiceLooper);//发送消息到该Looper中
+    HandlerThread thread = new HandlerThread("IntentService[" + mName + "]");
+    thread.start(); //开启线程
+    mServiceLooper = thread.getLooper();//当前线程绑定的Looper
+    mServiceHandler = new ServiceHandler(mServiceLooper);//发送消息到该Looper中
 }
 7. 在低版本SDK中 实现高版本 api(小米)
 1）、在使用了高版本API的方法前面加一个@TargetApi
 2）、通过版本号判断使用不同的代码
-     if(Build.VERSION.SDK_INT>11){
-           //使用api 11 新加的方法
-        }else{
-           //低版本兼容
-        }
+ if(Build.VERSION.SDK_INT>11){
+       //使用api 11 新加的方法
+    }else{
+       //低版本兼容
+    }
 3）、使用@SuppressLint，但是不建议使用。
 @SuppressLint 和 @TargetApi达到的效果是一样的，相对于SuppressLint ，TargetApi会根据函数里使用的API，严格匹配SDK版本，给出编译错误，但是SuppressLint 则忽略了SDK版本。
 
@@ -356,26 +359,26 @@ requestLayout：会导致调用measure()过程 和 layout()过程 。 将会根�
 onlayout：如果该View是ViewGroup对象，需要实现该方法，对每个子视图进行布局
 onDraw：负责绘制视图本身
 drawChild：重新回调每个子视图的draw()方法
- protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
-        return child.draw(canvas, this, drawingTime);
-    }
-public void draw(Canvas canvas) {
-    onDraw(canvas);
-    dispatchDraw(canvas);
+protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
+    return child.draw(canvas, this, drawingTime);
 }
- protected void dispatchDraw(Canvas canvas) {
-   //ViewGroup实现
-  }
+public void draw(Canvas canvas) {
+onDraw(canvas);
+dispatchDraw(canvas);
+}
+protected void dispatchDraw(Canvas canvas) {
+//ViewGroup实现
+}
 
 18. invalidate()和 postInvalidate() 的区别及使用(百度)
 invalidate()是用来刷新View的，必须是在UI线程中进行工作。
 postInvalidate()可以在非UI线程中被调用
 
 19. Android 动画框架实现原理
- Animation框架定义了透明度，旋转，缩放和位移几种常见的动画，而且控制的是整个View，
- 实现原理是每次绘制视图时View所在的ViewGroup中的drawChild函数获取该View的Animation的Transformation值，
- 然后调用canvas.concat(transformToApply.getMatrix())，通过矩阵运算完成动画帧，如果动画没有完成，继续调用invalidate()函数，
- 启动下次绘制来驱动动画，动画过程中的帧之间间隙时间是绘制函数所消耗的时间.
+Animation框架定义了透明度，旋转，缩放和位移几种常见的动画，而且控制的是整个View，
+实现原理是每次绘制视图时View所在的ViewGroup中的drawChild函数获取该View的Animation的Transformation值，
+然后调用canvas.concat(transformToApply.getMatrix())，通过矩阵运算完成动画帧，如果动画没有完成，继续调用invalidate()函数，
+启动下次绘制来驱动动画，动画过程中的帧之间间隙时间是绘制函数所消耗的时间.
 
 20. Android 为每个应用程序分配的内存大小是多少?(美团)
 android程序内存一般限制在16M，也有的是24M
@@ -411,7 +414,7 @@ onDrawForeground(canvas)  在content上绘制，比如滚动条、forground draw
 （2）RelativeLayout的子View如果高度和RelativeLayout不同，则会引发效率问题，当子View很复杂时，这个问题会更加严重。如果可以，尽量使用padding代替margin。
 （3）在不影响层级深度的情况下,使用LinearLayout和FrameLayout而不是RelativeLayout。
 （4）提高绘制性能的使用方式
-    根据上面源码的分析，RelativeLayout将对所有的子View进行两次measure，而LinearLayout在使用weight属性进行布局时也会对子View进行两次measure，如果他们位于整个View树的顶端时并可能进行多层的嵌套时，位于底层的View将会进行大量的measure操作，大大降低程序性能。因此，应尽量将RelativeLayout和LinearLayout置于View树的底层，并减少嵌套。
+根据上面源码的分析，RelativeLayout将对所有的子View进行两次measure，而LinearLayout在使用weight属性进行布局时也会对子View进行两次measure，如果他们位于整个View树的顶端时并可能进行多层的嵌套时，位于底层的View将会进行大量的measure操作，大大降低程序性能。因此，应尽量将RelativeLayout和LinearLayout置于View树的底层，并减少嵌套。
 
 23. 优化自定义 view(百度、乐视、小米)
 1）避免在onDraw中做内存分配的事情，因为任何内存分配都可能导致内存回收，从而导致卡顿。在初始化或者动画之间分配对象,绝不要在动画运行时分配内存。
@@ -447,18 +450,18 @@ TranslateAnimation、ScaleAnimation、RotateAnimation、AlpahAnimation
 29. Handler 机制及底层实现
 Handler主要负责发送消息和处理消息，当我们调用sendMessage或post消息时，会将消息Message进行封装，然后将消息放入MessageQueue队列中。
 MessageQueue队列所在的Looper会循环处理Message，然后回调Handler的dispatchMessage方法。
- public void dispatchMessage(Message msg) {
-        if (msg.callback != null) { //post(runnable)
-            handleCallback(msg);
-        } else {
-            if (mCallback != null) {
-                if (mCallback.handleMessage(msg)) {
-                    return;
-                }
+public void dispatchMessage(Message msg) {
+    if (msg.callback != null) { //post(runnable)
+        handleCallback(msg);
+    } else {
+        if (mCallback != null) {
+            if (mCallback.handleMessage(msg)) {
+                return;
             }
-            handleMessage(msg);
         }
+        handleMessage(msg);
     }
+}
 
 30. Binder 机制及底层实现
 Binder是Android中的一个类，它实现了IBinder接口。
@@ -496,13 +499,13 @@ Android性能优化涉及到很多方面，大致归类为如下几点：
 算法优化，减少时间复杂度
 尽量使用int，而不是float或者double
 尽量采用基本类型，避免无必要的自动装箱和拆箱，浪费时间和空间
-选用合适的集合类（尽量以空间换时间）、选用Android家的SparseArray,SparseBooleanArray和LongSparseArray
+选用合适的集合类（尽量以空间换时间）、选用Android家的SparseArray,SparseBooleanArray和SparseLongArray
 
 
 7）其他
 数据库优化、网络优化(Gzip压缩、网络缓存、使用连接池等)、......
 
-32、Android架构
+32、Android App 的设计架构:MVC,MVP,MVVM 与架构经验谈(搜狐)
 1)MVC
 View:xml Controller:Activity Model:业务逻辑
 2）MVP
@@ -523,48 +526,51 @@ ArrayMap：对HashMap的改进，对于小数据量，可以节约内存
 这个数据结构的设计就做到了，有多少个item我就分配多少内存，做到了memory的节约。
 
 ArraySet：对HashSet的改进，同ArrayMap类似
+
+SparseXX [spɑːs] ：就是以Integer为key
+
 SparseArray：代替HashMap<Integer，Object>，内存更高效，因为不用对int进行包装成Integer，第二避免创建额外对象保存key和value(比如HashMapEntry)
 它内部则是通过两个数组来进行数据存储的，一个存储key，另外一个存储value
-    private int[] mKeys; //保存key
-    private Object[] mValues; //保存value
+private int[] mKeys; //保存key
+private Object[] mValues; //保存value
 SparseBooleanArray: 代替 HashMap<Integer,Boolean>
-    private int[] mKeys;
-    private boolean[] mValues; //boolean数组存放value值
-    private int mSize;
+private int[] mKeys;
+private boolean[] mValues; //boolean数组存放value值
+private int mSize;
 SparseIntArray: 代替 HashMap<Integer,Integer>
-    private int[] mKeys;
-    private int[] mValues; //int数组存放value值
-    private int mSize;
+private int[] mKeys;
+private int[] mValues; //int数组存放value值
+private int mSize;
 SparseLongArray：代替 HashMap<Integer,Long>
-    private int[] mKeys;
-    private long[] mValues; //Long数组存放value值
-    private int mSize;
+private int[] mKeys;
+private long[] mValues; //Long数组存放value值
+private int mSize;
 
 //查询
 public int get(int key) {
-    return get(key, 0);
+return get(key, 0);
 }
 public int get(int key, int valueIfKeyNotFound) {
-    int i = ContainerHelpers.binarySearch(mKeys, mSize, key);//二分法查找key
+int i = ContainerHelpers.binarySearch(mKeys, mSize, key);//二分法查找key
 
-    if (i < 0) {
-        return valueIfKeyNotFound;
-    } else {
-        return mValues[i];
-    }
+if (i < 0) {
+    return valueIfKeyNotFound;
+} else {
+    return mValues[i];
+}
 }
 //移除
 public void removeAt(int index) {
-    System.arraycopy(mKeys, index + 1, mKeys, index, mSize - (index + 1)); //index之后的元素前移1位
-    System.arraycopy(mValues, index + 1, mValues, index, mSize - (index + 1)); //index之后的元素前移1位
-    mSize--;
+System.arraycopy(mKeys, index + 1, mKeys, index, mSize - (index + 1)); //index之后的元素前移1位
+System.arraycopy(mValues, index + 1, mValues, index, mSize - (index + 1)); //index之后的元素前移1位
+mSize--;
 }
 
 public void clear() {
-    mSize = 0;
+mSize = 0;
 }
 public int size() {
-    return mSize;
+return mSize;
 }
 
 35.Android 中的Dalvik和ART是什么,有啥区别?
@@ -596,3 +602,44 @@ ART 的机制与 Dalvik 不同。
 缺点：
 1.机器码占用的存储空间更大
 2.应用的安装时间会变长。
+
+36、Android进程
+Android会根据进程中运行的组件类别以及组件的状态来判断该进程的重要性，Android会首先停止那些不重要的进程。按照重要性从高到低一共有五个级别：
+1）前台进程
+2）可见进程
+3）服务进程
+4）后台进程
+5）空进程
+
+
+37、ListView原理
+38、Android冷启动白屏解决方案
+1、设置入口Activity的主题为透明的
+这样当用户点击桌面APP图片的时候，并不会“立即”进入APP，而是在桌面上停留一会
+2、将背景图设置成APP的欢迎背景图
+<style name="splash" parent="AppTheme">
+  <item name="android:windowBackground">@drawable/splash</item>
+</style>
+
+39、在Service或者BroadCastReceiver中弹出dialog
+默认是不能在Service或BrocastReceiver中显示Dialog的，
+如果非要显示呢？
+可以有两种方式：
+1）在manifest.xml中申请SYSTEM_ALERT_WINDOW权限
+<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"></uses-permission>
+然后给dialog的window设置type=WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
+
+AlertDialog.Builder builder = new AlertDialog.Builder(this);
+builder.setMessage("Are you sure you want to exit?")
+       .setCancelable(false)
+       .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+           public void onClick(DialogInterface dialog, int id) {
+                MyActivity.this.finish();
+           }
+       })
+AlertDialog dialog = builder.create();
+  dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+  dialog.show();
+2）使用一个Dialog Activity作为dialog来显示
+
+

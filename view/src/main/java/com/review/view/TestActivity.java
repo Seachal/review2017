@@ -33,13 +33,12 @@ public class TestActivity extends Activity implements View.OnClickListener {
             @Override
             public void onClick(View v) {
                 System.out.println("MyRelativeLayout================onClick");
-                Toast.makeText(TestActivity.this,"onTouch",Toast.LENGTH_SHORT).show();
+                Toast.makeText(TestActivity.this,"onClick",Toast.LENGTH_SHORT).show();
             }
         });
         relativeLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Toast.makeText(TestActivity.this,"onTouch",Toast.LENGTH_SHORT).show();
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         System.out.println("MyRelativeLayout=========onTouch=======ACTION_DOWN");

@@ -126,6 +126,7 @@ public class MyRelativeLayout extends RelativeLayout{
                 System.out.println("MyRelativeLayout------onTouchEvent-------ACTION_UP");
                 break;
         }
+//        return true;
         return super.onTouchEvent(event);
     }
 
