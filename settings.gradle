@@ -1,1 +1,1 @@
-include ':receiver', ':launch_model', ':fragment', ':service', ':service_aidl_client', ':datastorage', ':mutiprocess', ':datastorge_sphelper', ':datastorage_contentprovider', ':asyncloader', ':view', ':anr', ':activity'
+include ':receiver', ':launch_model', ':fragment', ':service', ':service_aidl_client', ':datastorage', ':process', ':datastorge_sphelper', ':datastorage_contentprovider', ':asyncloader', ':view', ':anr', ':activity', ':process_keepalive'

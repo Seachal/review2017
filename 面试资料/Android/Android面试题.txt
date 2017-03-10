@@ -613,7 +613,21 @@ Android会根据进程中运行的组件类别以及组件的状态来判断该�
 
 
 37、ListView原理
-38、Android冷启动白屏解决方案
+38、App冷启动、热启动
+1）冷启动
+当启动应用时，后台没有该应用的进程，这时系统会重新创建一个新的进程分配给该应用,所以会先创建和初始化Application类，再创建和初始化MainActivity类（包括一系列的测量、布局、绘制），最后显示在界面上。
+应用的冷启动启动流程？
+当点击app的启动图标时，安卓系统会从Zygote进程中fork创建出一个新的进程分配给该应用，之后会依次创建和初始化Application类、创建MainActivity类、加载主题样式Theme中的　　　　　　　
+windowBackground等属性设置给MainActivity以及配置Activity层级上的一些属性、再inflate布局、当onCreate/onStart/onResume方法都走完了后最后才进行contentView的measure/layout/draw显示在界面上，所以直到这里，
+应用的第一次启动才算完成，这时候我们看到的界面也就是所说的第一帧。所以，总结一下，应用的启动流程如下：
+Application的构造器方法——>attachBaseContext()——>onCreate()——>Activity的构造方法——>onCreate()——>配置主题中背景等属性——>onStart()——>onResume()——>测量布局绘制显示在界面上。
+
+2)热启动
+当启动应用时，后台已有该应用的进程，所以不会创建Application，而是直接走MainActivity创建流程。
+
+冷启动过程中碰到的白屏黑屏以及优化启动时间？
+冷启动时间是指当用户点击你的app那一刻到系统调用Activity.onCreate()之间的时间段
+在这个时间段内，WindowManager会先加载app主题样式中的windowBackground做为app的预览元素，然后再真正去加载activity的layout布局
 1、设置入口Activity的主题为透明的
 这样当用户点击桌面APP图片的时候，并不会“立即”进入APP，而是在桌面上停留一会
 2、将背景图设置成APP的欢迎背景图

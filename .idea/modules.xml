@@ -10,7 +10,8 @@
       <module fileurl="file://$PROJECT_DIR$/datastorge_sphelper/datastorge_sphelper.iml" filepath="$PROJECT_DIR$/datastorge_sphelper/datastorge_sphelper.iml" />
       <module fileurl="file://$PROJECT_DIR$/fragment/fragment.iml" filepath="$PROJECT_DIR$/fragment/fragment.iml" />
       <module fileurl="file://$PROJECT_DIR$/launch_model/launch_model.iml" filepath="$PROJECT_DIR$/launch_model/launch_model.iml" />
-      <module fileurl="file://$PROJECT_DIR$/mutiprocess/mutiprocess.iml" filepath="$PROJECT_DIR$/mutiprocess/mutiprocess.iml" />
+      <module fileurl="file://$PROJECT_DIR$/process/process.iml" filepath="$PROJECT_DIR$/process/process.iml" />
+      <module fileurl="file://$PROJECT_DIR$/process_keepalive/process_keepalive.iml" filepath="$PROJECT_DIR$/process_keepalive/process_keepalive.iml" />
       <module fileurl="file://$PROJECT_DIR$/receiver/receiver.iml" filepath="$PROJECT_DIR$/receiver/receiver.iml" />
       <module fileurl="file://$PROJECT_DIR$/review2017.iml" filepath="$PROJECT_DIR$/review2017.iml" />
       <module fileurl="file://$PROJECT_DIR$/service/service.iml" filepath="$PROJECT_DIR$/service/service.iml" />
