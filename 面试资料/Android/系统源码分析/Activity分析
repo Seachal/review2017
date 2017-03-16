@@ -1,0 +1,10 @@
+-----------FragmentActivity继承体系
+Context
+  ---ContextWrapper
+      ---ContextThemeWrapper
+            ----Activity
+                  ----SupportActivity
+                       ---BaseFragmentActivityGingerbread
+                                 ----BaseFragmentActivityHoneycomb
+                                           ---BaseFragmentActivityJB
+                                                      ---FragmentActivity

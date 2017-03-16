@@ -1,0 +1,68 @@
+
+IApplicationThread：
+ApplicationThreadNative：本地Binder，类似AIDL中的Stub
+ApplicationThread ：Stub的具体实现，是ActivityThread中的内部类
+ApplicationThreadProxy：Binder代理
+ActivityThread：一个管理类，具体实现都是转交给ApplicationThreadNative，进而交给它的实现ApplicationThread完成的。
+
+-------------IInterface
+public interface IApplicationThread extends IInterface {
+
+}
+--------------本地Binder，类似AIDL中的Stub
+public abstract class ApplicationThreadNative extends Binder
+        implements IApplicationThread {
+
+    static public IApplicationThread asInterface(IBinder obj) {
+        if (obj == null) {
+            return null;
+        }
+        IApplicationThread in =
+            (IApplicationThread)obj.queryLocalInterface(descriptor);
+        if (in != null) {
+            return in;
+        }
+
+        return new ApplicationThreadProxy(obj);
+    }
+
+    public ApplicationThreadNative() {
+        attachInterface(this, descriptor);
+    }
+
+    @Override
+    public boolean onTransact(int code, Parcel data, Parcel reply, int flags)
+            throws RemoteException {
+
+            }
+}
+-----------------Binder代理
+class ApplicationThreadProxy implements IApplicationThread {
+    private final IBinder mRemote;
+
+    public ApplicationThreadProxy(IBinder remote) {
+        mRemote = remote;
+    }
+
+    public final IBinder asBinder() {
+        return mRemote;
+    }
+
+    .............接口实现.................
+}
+
+-------------------Stub 具体实现
+是ActivityThread中的内部类
+public class ActivityThread{
+
+     ActivityThread() {
+         mResourcesManager = ResourcesManager.getInstance();
+     }
+
+     //具体实现
+    private class ApplicationThread extends ApplicationThreadNative {
+
+
+    }
+}
+

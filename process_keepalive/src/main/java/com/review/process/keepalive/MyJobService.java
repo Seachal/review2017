@@ -43,7 +43,7 @@ public class MyJobService extends JobService {
 
     @Override
     public boolean onStartJob(JobParameters params) {
-        System.out.println("----------MyJobService，onStartJob,thread=" + Thread.currentThread().getName()+",pid="+ android.os.Process.myPid());
+//        System.out.println("----------MyJobService，onStartJob,thread=" + Thread.currentThread().getName()+",pid="+ android.os.Process.myPid());
         return false;
     }
 

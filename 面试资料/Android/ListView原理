@@ -36,8 +36,8 @@ public View getView(int position, View convertView, ViewGroup parent) {
       @Override
       protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
          //解決嵌套在 ScrollView的 ListVew数据显示不全
-          int expandSpec = MeasureSpec.makeMeasureSpec(Integer.MAX_VALUE >> 2,MeasureSpec.AT_MOST);
-          super.onMeasure(widthMeasureSpec, expandSpec);
+          int heightSpec = MeasureSpec.makeMeasureSpec(Integer.MAX_VALUE >> 2,MeasureSpec.AT_MOST);
+          super.onMeasure(widthMeasureSpec, heightSpec);
       }
   }
 

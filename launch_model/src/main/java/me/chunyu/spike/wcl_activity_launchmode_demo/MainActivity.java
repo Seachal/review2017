@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, TestAActivity.class));
             }
         });
-
         Log.e(TAG, "onCreate "+getTaskId());
     }
 

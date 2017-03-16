@@ -1,0 +1,142 @@
+
+IServiceManager: 远程ServiceManager服务能力, 主要包括查询和发布系统服务
+ServiceManagerNative: 本地Binder
+ServiceManagerProxy：远程Binder代理
+ServiceManager：管理类，对外负责添加或查询服务
+
+SystemServiceRegistry： 服务注册表，用来获取各种服务管理器，比如BatteryManager、DownloadManager等
+     我们调用context.getSystemService(String name),就是调用SystemServiceRegistry获取的服务
+
+如何获取IServiceManager？
+IServiceManager serviceManager=ServiceManager.getIServiceManager();
+
+
+public interface IServiceManager extends IInterface
+{
+    public IBinder getService(String name) throws RemoteException;
+    public IBinder checkService(String name) throws RemoteException;
+    public void addService(String name, IBinder service, boolean allowIsolated)
+                throws RemoteException;
+    public String[] listServices() throws RemoteException;
+    public void setPermissionController(IPermissionController controller)
+            throws RemoteException;
+
+    static final String descriptor = "android.os.IServiceManager";
+
+    int GET_SERVICE_TRANSACTION = IBinder.FIRST_CALL_TRANSACTION;
+    int CHECK_SERVICE_TRANSACTION = IBinder.FIRST_CALL_TRANSACTION+1;
+    int ADD_SERVICE_TRANSACTION = IBinder.FIRST_CALL_TRANSACTION+2;
+    int LIST_SERVICES_TRANSACTION = IBinder.FIRST_CALL_TRANSACTION+3;
+    int CHECK_SERVICES_TRANSACTION = IBinder.FIRST_CALL_TRANSACTION+4;
+    int SET_PERMISSION_CONTROLLER_TRANSACTION = IBinder.FIRST_CALL_TRANSACTION+5;
+}
+
+//本地Binder
+public abstract class ServiceManagerNative extends Binder implements IServiceManager
+{
+    static public IServiceManager asInterface(IBinder obj)
+    {
+        if (obj == null) {
+            return null;
+        }
+        //本地Binder
+        IServiceManager in =
+            (IServiceManager)obj.queryLocalInterface(descriptor);
+        if (in != null) {
+            return in;
+        }
+        //远程Binder代理
+        return new ServiceManagerProxy(obj);
+    }
+
+    public ServiceManagerNative()
+    {
+        attachInterface(this, descriptor);
+    }
+
+    public boolean onTransact(int code, Parcel data, Parcel reply, int flags)
+    {
+        try {
+            switch (code) {
+            case IServiceManager.GET_SERVICE_TRANSACTION: {
+                data.enforceInterface(IServiceManager.descriptor);
+                String name = data.readString();
+                IBinder service = getService(name);
+                reply.writeStrongBinder(service);
+                return true;
+               }
+            }
+        } catch (RemoteException e) {
+        }
+
+        return false;
+    }
+
+    public IBinder asBinder()
+    {
+        return this;
+    }
+}
+
+//Binder代理
+class ServiceManagerProxy implements IServiceManager {
+    private IBinder mRemote;
+    public ServiceManagerProxy(IBinder remote) {
+        mRemote = remote;
+    }
+
+    public IBinder asBinder() {
+        return mRemote;
+    }
+
+    public IBinder getService(String name) throws RemoteException {
+        Parcel data = Parcel.obtain();
+        Parcel reply = Parcel.obtain();
+        data.writeInterfaceToken(IServiceManager.descriptor);
+        data.writeString(name);
+        mRemote.transact(GET_SERVICE_TRANSACTION, data, reply, 0);
+        IBinder binder = reply.readStrongBinder();
+        reply.recycle();
+        data.recycle();
+        return binder;
+    }
+    ...........................................
+}
+
+public final class ServiceManager {
+    private static IServiceManager sServiceManager;
+    private static HashMap<String, IBinder> sCache = new HashMap<String, IBinder>();
+
+   //获取IServiceManager实例
+    private static IServiceManager getIServiceManager() {
+        if (sServiceManager != null) {
+            return sServiceManager;
+        }
+
+        // Find the service manager
+        sServiceManager = ServiceManagerNative.asInterface(BinderInternal.getContextObject());
+        return sServiceManager;
+    }
+    //获取服务
+    public static IBinder getService(String name) {
+        try {
+            IBinder service = sCache.get(name);
+            if (service != null) {
+                return service;
+            } else {
+                return getIServiceManager().getService(name); //
+            }
+        } catch (RemoteException e) {
+            Log.e(TAG, "error in getService", e);
+        }
+        return null;
+    }
+    //添加服务
+    public static void addService(String name, IBinder service) {
+        try {
+            getIServiceManager().addService(name, service, false);
+        } catch (RemoteException e) {
+            Log.e(TAG, "error in addService", e);
+        }
+    }
+}

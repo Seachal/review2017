@@ -1,0 +1,265 @@
+
+----------------------------ActivityThread
+//创建ActivityThread，开启消息循环队列
+public final class ActivityThread {
+    public static void main(String[] args) {
+
+        Process.setArgV0("<pre-initialized>");
+
+        Looper.prepareMainLooper(); //创建main looper
+
+        ActivityThread thread = new ActivityThread(); //创建ActivityThread
+        thread.attach(false);
+
+        if (sMainThreadHandler == null) {
+            sMainThreadHandler = thread.getHandler();
+        }
+        Looper.loop(); //循环消息队列
+    }
+ }
+
+    private void attach(boolean system) {
+        sCurrentActivityThread = this;
+        mSystemThread = system;
+        if (!system) {
+            ViewRootImpl.addFirstDrawHandler(new Runnable() {
+                @Override
+                public void run() {
+                    ensureJitEnabled(); //开启JIT编译  dalvik.system.VMRuntime.getRuntime().startJitCompilation();
+                }
+            });
+            // 将ActivityThread与Application绑定
+            //实际上拿到的ActivityManagerProxy代理对象，
+            final IActivityManager mgr = ActivityManagerNative.getDefault();
+              mgr.attachApplication(mAppThread);
+
+        }
+    }
+
+    private class H extends Handler {
+           public void handleMessage(Message msg) {
+               switch (msg.what) {
+                     case BIND_APPLICATION:
+                         AppBindData data = (AppBindData)msg.obj;
+                         handleBindApplication(data);
+                         break;
+               }
+     }
+
+    private void handleBindApplication(AppBindData data) {
+          //在3.1之前的版本，使用线程池，否则使用串行线程池执行
+        if (data.appInfo.targetSdkVersion <= android.os.Build.VERSION_CODES.HONEYCOMB_MR1) {
+            AsyncTask.setDefaultExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
+
+       // android3.0后不允许在UI主线程中执行网络请求
+        if (data.appInfo.targetSdkVersion >= Build.VERSION_CODES.HONEYCOMB) {
+            StrictMode.enableDeathOnNetwork();
+        }
+
+       // android 7.0后，需要文件共享方式对外提供访问。
+        if (data.appInfo.targetSdkVersion >= Build.VERSION_CODES.N) {
+            StrictMode.enableDeathOnFileUriExposure();
+        }
+        //创LoadApk
+        final LoadedApk pi = getPackageInfo(instrApp, data.compatInfo,
+                 appContext.getClassLoader(), false, true, false);
+        // 创建Application的Context
+        final ContextImpl instrContext = ContextImpl.createAppContext(this, pi);
+        //创建Application
+        Application app = data.info.makeApplication(data.restrictedBackupMode, null);
+        mInitialApplication = app;
+         //调用  app.onCreate();
+        mInstrumentation.callApplicationOnCreate(app); //app.onCreate()
+
+    }
+-----------------ActivityManagerProxy
+    public void attachApplication(IApplicationThread app) throws RemoteException
+    {
+        Parcel data = Parcel.obtain();
+        Parcel reply = Parcel.obtain();
+        data.writeInterfaceToken(IActivityManager.descriptor);
+        data.writeStrongBinder(app.asBinder()); //发送IApplicationThread
+        mRemote.transact(ATTACH_APPLICATION_TRANSACTION, data, reply, 0); //调用ActivityManagerNative进行处理
+        reply.readException();
+        data.recycle();
+        reply.recycle();
+    }
+-----------------ActivityManagerNative
+本地Binder，onTransact中处理不同code业务
+    @Override
+    public boolean onTransact(int code, Parcel data, Parcel reply, int flags)
+            throws RemoteException {
+   switch (code) {
+            case ATTACH_APPLICATION_TRANSACTION: { //绑定创建Application
+                data.enforceInterface(IActivityManager.descriptor);
+                Binder binder= data.readStrongBinder();
+                IApplicationThread app = ApplicationThreadNative.asInterface(binder); //拿到的是ApplicationThreadProxy代理
+                if (app != null) {
+                    attachApplication(app); //调用ActivityManagerService的attachApplication
+                }
+                reply.writeNoException();
+                return true;
+            }
+      }
+
+-----------------ActivityManagerService
+本地Binder具体实现
+    @Override
+    public final void attachApplication(IApplicationThread thread) {
+        synchronized (this) {
+            int callingPid = Binder.getCallingPid();
+            final long origId = Binder.clearCallingIdentity();
+            attachApplicationLocked(thread, callingPid);
+            Binder.restoreCallingIdentity(origId);
+        }
+    }
+    private final boolean attachApplicationLocked(IApplicationThread thread,int pid) {
+        //创建进程记录
+         ProcessRecord app;
+
+        // 调用ApplicationThreadProxy代理对象的bindAppplication
+        thread.bindApplication(processName, appInfo, providers, app.instrumentationClass,
+        profilerInfo, app.instrumentationArguments, app.instrumentationWatcher,
+        app.instrumentationUiAutomationConnection, testMode,
+        mBinderTransactionTrackingEnabled, enableTrackAllocation,
+        isRestrictedBackupMode || !normalMode, app.persistent,
+        new Configuration(mConfiguration), app.compat,
+        getCommonServicesLocked(app.isolated),
+        mCoreSettingsObserver.getCoreSettingsLocked());
+    }
+-------------------------------ApplicationThreadProxy
+    @Override
+    public final void bindApplication(String packageName, ApplicationInfo info,
+            List<ProviderInfo> providers, ComponentName testName, ProfilerInfo profilerInfo,
+            Bundle testArgs, IInstrumentationWatcher testWatcher,
+            IUiAutomationConnection uiAutomationConnection, int debugMode,
+            boolean enableBinderTracking, boolean trackAllocation, boolean restrictedBackupMode,
+            boolean persistent, Configuration config, CompatibilityInfo compatInfo,
+            Map<String, IBinder> services, Bundle coreSettings) throws RemoteException {
+        Parcel data = Parcel.obtain();
+        data.writeInterfaceToken(IApplicationThread.descriptor); //第一步都是写入interface标识
+        data.writeString(packageName);
+        info.writeToParcel(data, 0);
+        data.writeTypedList(providers);
+        if (testName == null) {
+            data.writeInt(0);
+        } else {
+            data.writeInt(1);
+            testName.writeToParcel(data, 0);
+        }
+        if (profilerInfo != null) {
+            data.writeInt(1);
+            profilerInfo.writeToParcel(data, Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
+        } else {
+            data.writeInt(0);
+        }
+        data.writeBundle(testArgs);
+        data.writeStrongInterface(testWatcher);
+        data.writeStrongInterface(uiAutomationConnection);
+        data.writeInt(debugMode);
+        data.writeInt(enableBinderTracking ? 1 : 0);
+        data.writeInt(trackAllocation ? 1 : 0);
+        data.writeInt(restrictedBackupMode ? 1 : 0);
+        data.writeInt(persistent ? 1 : 0);
+        config.writeToParcel(data, 0);
+        compatInfo.writeToParcel(data, 0);
+        data.writeMap(services);
+        data.writeBundle(coreSettings);
+         //调用ApplicationThreadNative的transact
+        mRemote.transact(BIND_APPLICATION_TRANSACTION, data, null,
+                IBinder.FLAG_ONEWAY);
+        data.recycle();
+    }
+----------------------------------ApplicationThreadNative
+public abstract class ApplicationThreadNative extends Binder
+            implements IApplicationThread {
+    @Override
+    public boolean onTransact(int code, Parcel data, Parcel reply, int flags)
+            throws RemoteException {
+        switch (code) {
+            case BIND_APPLICATION_TRANSACTION:
+            {
+                data.enforceInterface(IApplicationThread.descriptor);
+                String packageName = data.readString();
+                ApplicationInfo info =
+                    ApplicationInfo.CREATOR.createFromParcel(data);
+                List<ProviderInfo> providers =
+                    data.createTypedArrayList(ProviderInfo.CREATOR);
+                ComponentName testName = (data.readInt() != 0)
+                    ? new ComponentName(data) : null;
+                ProfilerInfo profilerInfo = data.readInt() != 0
+                        ? ProfilerInfo.CREATOR.createFromParcel(data) : null;
+                Bundle testArgs = data.readBundle();
+                IBinder binder = data.readStrongBinder();
+                IInstrumentationWatcher testWatcher = IInstrumentationWatcher.Stub.asInterface(binder);
+                binder = data.readStrongBinder();
+                IUiAutomationConnection uiAutomationConnection =
+                        IUiAutomationConnection.Stub.asInterface(binder);
+                int testMode = data.readInt();
+                boolean enableBinderTracking = data.readInt() != 0;
+                boolean trackAllocation = data.readInt() != 0;
+                boolean restrictedBackupMode = (data.readInt() != 0);
+                boolean persistent = (data.readInt() != 0);
+                Configuration config = Configuration.CREATOR.createFromParcel(data);
+                CompatibilityInfo compatInfo = CompatibilityInfo.CREATOR.createFromParcel(data);
+                HashMap<String, IBinder> services = data.readHashMap(null);
+                Bundle coreSettings = data.readBundle();
+
+                //调用具体实现，ApplicationThread(ActivityThread中的内部类)
+                bindApplication(packageName, info, providers, testName, profilerInfo, testArgs,
+                        testWatcher, uiAutomationConnection, testMode, enableBinderTracking,
+                        trackAllocation, restrictedBackupMode, persistent, config, compatInfo, services,
+                        coreSettings);
+                return true;
+            }
+        }
+
+-------------ApplicationThread
+接口实现，ActivityThread中的内部类ApplicationThread.
+        public final void bindApplication(String processName, ApplicationInfo appInfo,
+                List<ProviderInfo> providers, ComponentName instrumentationName,
+                ProfilerInfo profilerInfo, Bundle instrumentationArgs,
+                IInstrumentationWatcher instrumentationWatcher,
+                IUiAutomationConnection instrumentationUiConnection, int debugMode,
+                boolean enableBinderTracking, boolean trackAllocation,
+                boolean isRestrictedBackupMode, boolean persistent, Configuration config,
+                CompatibilityInfo compatInfo, Map<String, IBinder> services, Bundle coreSettings) {
+
+            if (services != null) {
+                // Setup the service cache in the ServiceManager
+                ServiceManager.initServiceCache(services);
+            }
+
+            setCoreSettings(coreSettings);
+
+            //封装AppBindData
+            AppBindData data = new AppBindData();
+            data.processName = processName;
+            data.appInfo = appInfo;
+            data.providers = providers;
+            data.instrumentationName = instrumentationName;
+            data.instrumentationArgs = instrumentationArgs;
+            data.instrumentationWatcher = instrumentationWatcher;
+            data.instrumentationUiAutomationConnection = instrumentationUiConnection;
+            data.debugMode = debugMode;
+            data.enableBinderTracking = enableBinderTracking;
+            data.trackAllocation = trackAllocation;
+            data.restrictedBackupMode = isRestrictedBackupMode;
+            data.persistent = persistent;
+            data.config = config;
+            data.compatInfo = compatInfo;
+            data.initProfilerInfo = profilerInfo;
+
+            sendMessage(H.BIND_APPLICATION, data);  //发送消息
+        }
+------------------------Handler
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case BIND_APPLICATION:
+                    Trace.traceBegin(Trace.TRACE_TAG_ACTIVITY_MANAGER, "bindApplication");
+                    AppBindData data = (AppBindData)msg.obj;
+                    handleBindApplication(data); //处理绑定Application
+                    Trace.traceEnd(Trace.TRACE_TAG_ACTIVITY_MANAGER);
+                    break;
+            }

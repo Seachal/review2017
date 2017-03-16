@@ -1,0 +1,60 @@
+
+----------------------LoadedApk
+APK加载信息
+public final class LoadedApk {
+
+    public Application makeApplication(boolean forceDefaultAppClass,
+            Instrumentation instrumentation) {
+        if (mApplication != null) {
+            return mApplication;
+        }
+
+        Application app = null;
+
+        String appClass = mApplicationInfo.className; //如果有自定义Application
+        if (forceDefaultAppClass || (appClass == null)) {
+            appClass = "android.app.Application";
+        }
+
+        try {
+            java.lang.ClassLoader cl = getClassLoader();
+            if (!mPackageName.equals("android")) {
+                initializeJavaContextClassLoader();
+            }
+			//创建ApplicationContext
+            ContextImpl appContext = ContextImpl.createAppContext(mActivityThread, this);
+			//调用Instrumentation创建Application
+            app = mActivityThread.mInstrumentation.newApplication(
+                    cl, appClass, appContext);
+            appContext.setOuterContext(app);
+        } catch (Exception e) {
+        }
+
+        mActivityThread.mAllApplications.add(app); //一个APP可能有多进程，每个进程都会创建一个Application
+        mApplication = app;
+
+        if (instrumentation != null) {
+            try {
+			    //调用Application的onCreate()
+                instrumentation.callApplicationOnCreate(app);
+            } catch (Exception e) {
+
+            }
+        }
+
+        // Rewrite the R 'constants' for all library apks.
+        SparseArray<String> packageIdentifiers = getAssets(mActivityThread)
+                .getAssignedPackageIdentifiers();
+        final int N = packageIdentifiers.size();
+        for (int i = 0; i < N; i++) {
+            final int id = packageIdentifiers.keyAt(i);
+            if (id == 0x01 || id == 0x7f) {
+                continue;
+            }
+
+            rewriteRValues(getClassLoader(), packageIdentifiers.valueAt(i), id);
+        }
+
+        return app;
+    }
+}

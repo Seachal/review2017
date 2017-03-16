@@ -62,6 +62,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
             Log.d("MyService","onServiceConnected,service="+service);
             //service=android.os.BinderProxy
              myAIDL = MyAIDL.Stub.asInterface(service);
+            Log.d("MyService","onServiceConnected,myAIDL="+myAIDL);
             try {
                 String info = myAIDL.getInfor("hello world");
                 Log.d("MyService","onServiceConnected,info="+info);

@@ -50,12 +50,17 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 stopService(intent);
                 break;
             case R.id.btn_bindService:
-//              intent = new Intent(this, BinderService.class);
-                intent = new Intent(this, ProcessService.class);
+              intent = new Intent(this, BinderService.class); //在同一个进程内
+//                intent = new Intent(this, ProcessService.class); //本应用跨进程
                 bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
                 break;
             case R.id.btn_unbindService:
                 unbindService(serviceConnection);
+                break;
+            case R.id.btn_aidl: //跨应用AIDL访问
+                intent = new Intent();
+                intent.setComponent(new ComponentName("com.review.aidl.client","com.review.aidl.client.MyAIDLService"));
+                bindService(intent,aidlConnection,Context.BIND_AUTO_CREATE);
                 break;
             case R.id.btn_forgroundService:
                 intent = new Intent(this, ForgroundService.class);
@@ -71,11 +76,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 intent.putExtra("url", "http://www.baidu.com");
                 startService(intent);
                 break;
-            case R.id.btn_aidl:
-                intent = new Intent();
-                intent.setComponent(new ComponentName("com.review.aidl.client","com.review.aidl.client.MyAIDLService"));
-                bindService(intent,aidlConnection,Context.BIND_AUTO_CREATE);
-                break;
+
         }
     }
 
@@ -100,6 +101,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d("MyService","onServiceConnected,service="+service);
             MyAIDL myAIDL = MyAIDL.Stub.asInterface(service);
+            Log.d("MyService","onServiceConnected,myAIDL="+myAIDL);
             try {
                 String info = myAIDL.getInfor("hello world");
                 Log.d("MyService","onServiceConnected,info="+info);

@@ -1,0 +1,81 @@
+------------------------
+IActivityManager是一个IInterface，它代表远程Service具有什么能力，
+ActivityManagerNative指的是Binder本地对象（类似AIDL工具生成的Stub类），这个类是抽象类，它的实现是ActivityManagerService；因此对于AMS的最终操作都会进入ActivityManagerService这个真正实现；
+ActivityManagerService：Stub的具体实现
+ActivityManagerNative.java里面有一个非公开类ActivityManagerProxy, 它代表的就是Binder代理对象
+ActivityManager：是一个管理类，真正的操作都是转发给ActivityManagerNative进而交给他的实现ActivityManagerService 完成的。
+
+如何获取IActivityManager？
+IActivityManager activityManager=ActivityManagerNative.getDefault();//获取本地或远程代理对象
+
+public interface IActivityManager extends IInterface {
+
+}
+
+//Binder本地实例
+public abstract class ActivityManagerNative extends Binder implements IActivityManager
+{
+    public ActivityManagerNative() {
+        attachInterface(this, descriptor);
+    }
+    public IBinder asBinder() {
+        return this;
+    }
+    static public IActivityManager asInterface(IBinder obj) {
+        if (obj == null) {
+            return null;
+        }
+		//本地Binder实例
+        IActivityManager in =
+            (IActivityManager)obj.queryLocalInterface(descriptor);
+        if (in != null) {
+            return in;
+        }
+        //Binder代理
+        return new ActivityManagerProxy(obj);
+    }
+	//获取IActivityManager接口实例
+    static public IActivityManager getDefault() {
+        return gDefault.get();
+    }
+
+    private static final Singleton<IActivityManager> gDefault = new Singleton<IActivityManager>() {
+        protected IActivityManager create() {
+            IBinder b = ServiceManager.getService("activity"); //从ServiceManager中获取Binder
+            IActivityManager am = asInterface(b);
+            return am;
+        }
+    };
+
+    // 代理对象
+    class ActivityManagerProxy implements IActivityManager
+    {
+        public ActivityManagerProxy(IBinder remote)
+        {
+            mRemote = remote;
+        }
+
+        public IBinder asBinder()
+        {
+            return mRemote;
+        }
+        ...........其他接口方法实现...........
+  }
+}
+
+//也就是Stub，IActivityManager接口的具体实现
+public final class ActivityManagerService extends ActivityManagerNative{
+
+
+}
+
+//ActivityManager是一个管理类，真正的操作都是转发给ActivityManagerNative进而交给他的实现ActivityManagerService 完成的
+public class ActivityManager {
+    public List<RunningAppProcessInfo> getRunningAppProcesses() {
+        try {
+            return ActivityManagerNative.getDefault().getRunningAppProcesses();
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+}

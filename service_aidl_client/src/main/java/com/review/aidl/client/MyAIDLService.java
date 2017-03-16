@@ -21,7 +21,7 @@ public class MyAIDLService extends Service {
     private  MyAIDL.Stub binder = new MyAIDL.Stub() {
         @Override
         public String getInfor(String s) throws RemoteException {
-            Log.d(TAG, "MyAIDLService s="+s+",this="+this);
+            Log.d(TAG, "MyAIDLService s="+s);
             return "我是 aidl 接口返回的字符串";
         }
 
