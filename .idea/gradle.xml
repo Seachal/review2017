@@ -16,8 +16,11 @@
             <option value="$PROJECT_DIR$/datastorge_sphelper" />
             <option value="$PROJECT_DIR$/fragment" />
             <option value="$PROJECT_DIR$/launch_model" />
+            <option value="$PROJECT_DIR$/performance_strictmodel" />
             <option value="$PROJECT_DIR$/process" />
             <option value="$PROJECT_DIR$/process_keepalive" />
+            <option value="$PROJECT_DIR$/process_messenger" />
+            <option value="$PROJECT_DIR$/process_messenger_client" />
             <option value="$PROJECT_DIR$/receiver" />
             <option value="$PROJECT_DIR$/service" />
             <option value="$PROJECT_DIR$/service_aidl_client" />

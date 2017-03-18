@@ -1,0 +1,21 @@
+
+一   cat /system/build.prop
+Android设备出厂以后，java虚拟机对单个应用的最大内存分配就确定下来了，超出这个值就会OOM。这个属性值是定义在/system/build.prop文件中的
+dalvik.vm.heapstartsize=8m
+    -- App启动后, 系统分配给它的Heap初始大小. 随着App使用可增加.
+dalvik.vm.heapgrowthlimit=128m
+    -- 默认情况下, App可使用的Heap的最大值, 超过这个值就会产生OOM.
+dalvik.vm.heapsize=512m
+    -- 如果App的manifest文件中配置了largeHeap属性, 则App可使用的Heap的最大值为此项设定值.否则以heapgrowthlimit为准
+dalvik.vm.heapminfree=8m
+    -- 单次Heap内存调整的最小值.
+dalvik.vm.heapmaxfree=32m
+    -- 单次Heap内存调整的最大值.
+
+ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+int memoryClass = activityManager.getMemoryClass(); //当前APP可用内存大小
+int largeMemoryClass = activityManager.getLargeMemoryClass();// 如果没有配置largeHeap，则和memoryClass一样
+
+long freeMemory = Runtime.getRuntime().freeMemory();  //APP已申请内存中剩余的大小，当内存不足时，会继续申请
+long totalMemory = Runtime.getRuntime().totalMemory(); //APP当前已申请的内存大小
+long maxMemory = Runtime.getRuntime().maxMemory(); //一般等价于memoryClass
