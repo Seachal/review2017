@@ -11,6 +11,7 @@ Java语言使用模式Java虚拟机屏蔽了与具体平台相关的信息，使
 二、简单解释一下类加载器
 JVM的类加载是通过ClassLoader及其子类来完成的
 1、四种类加载器
+
 1）Bootstrap ClassLoader
 负责加载$JAVA_HOME中jre/lib/rt.jar里所有的class，由C++实现，不是ClassLoader子类
 2）Extension ClassLoader

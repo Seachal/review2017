@@ -23,6 +23,7 @@ Android系统每隔16ms会发出VSYNC信号重绘我们的界面(Activity).
 
 Hierarchy Viewer需要Root的机器(产品机没有开启ViewServer)才可以执行.
 可以使用第三方的开源的ViewServer来协助我们在未Root的机器上使用Hierarchy Viewer分析.
+参见：performance_strictmodel
 
 2、过度绘制(Overdraw)
 理想情况下，每个像素点应该只被绘制一次, 如果有多次绘制, 就是Overdraw, 过度绘制了.
@@ -44,8 +45,8 @@ UI线程的复杂运算会造成UI无响应, 当然更多的是造成UI响应停
 关于运算阻塞导致的卡顿的分析, 可以使用Traceview这个工具.
 StrictMode的使用
 StrictMode用来基于线程或VM设置一些策略, 一旦检测到策略违例, 控制台将输出一些警告，包含一个trace信息展示你的应用在何处出现问题.
-
 通常用来检测主线程中的磁盘读写或网络访问等耗时操作.
+
 4、频繁的GC
 为什么说频繁的GC会导致卡顿呢?
 简而言之, 就是执行GC操作的时候，任何线程的任何操作都会需要暂停，等待GC操作完成之后，其他操作才能够继续运行, 故而如果程序频繁GC, 自然会导致界面卡顿.

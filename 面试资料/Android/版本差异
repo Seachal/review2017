@@ -1,0 +1,48 @@
+https://developer.android.google.cn/about/versions/android-5.0-changes.html
+
+----------4.4
+1、沉浸式全屏模式
+透明系统状态栏
+2、可重复使用的位图
+BitmapFactory.Options.inBitmap=bitmap; //复用的bitmap
+
+----------5.0行为变更
+1、Material Design 支持
+2、默认使用ART编译器，大幅提高APP运行效率
+3、锁定屏幕通知
+
+----------6.0行为变更
+1、运行时权限
+2、取消支持 Apache HTTP 客户端
+要继续使用 Apache HTTP API，您必须先在 build.gradle 文件中声明以下编译时依赖项：
+android {
+    useLibrary 'org.apache.http.legacy'
+}
+3、低电耗模式和应用待机模式
+此版本引入了针对空闲设备和应用的最新节能优化技术。
+1）了解低电耗模式
+如果用户设备未插接电源、处于静止状态一段时间且屏幕关闭，设备会进入低电耗模式。 在低电耗模式下，系统会尝试通过限制应用对网络和 CPU 密集型服务的访问来节省电量。
+系统会定期退出低电耗模式一会儿，好让应用完成其已推迟的活动，
+一旦用户打开屏幕或连接到充电器唤醒设备，系统就会立即退出低电耗模式，并且所有应用都将返回到正常。
+低电耗模式限制：
+1）暂停访问网络。
+2）系统将忽略 wake locks。
+3）标准 AlarmManager 闹铃（包括 setExact() 和 setWindow()）推迟到下一维护时段。
+4)系统不执行 Wi-Fi 扫描。
+5)系统不允许运行同步适配器。
+6)系统不允许运行 JobScheduler。
+
+2)了解应用待机模式
+应用待机模式允许系统判定应用在用户未主动使用它时处于空闲状态。 当用户有一段时间未触摸应用时，系统便会作出此判定.
+
+
+----------7.0行为变更
+1、多窗口支持
+现在，用户可以一次在屏幕上打开两个应用。
+2、通知增强功能
+比如新的通知消息模板，消息可以直接回复等
+3、后台优化
+Android 7.0 移除了三项隐式广播(CONNECTIVITY_ACTION 、 ACTION_NEW_PICTURE 、 ACTION_NEW_VIDEO )，以帮助优化内存使用和电量消耗。
+4、使用FileProvider在应用间共享文件
+5、系统权限更改
+私有文件的文件权限不应再由所有者放宽，为使用 MODE_WORLD_READABLE 和/或 MODE_WORLD_WRITEABLE 而进行的此类尝试将触发 SecurityException。

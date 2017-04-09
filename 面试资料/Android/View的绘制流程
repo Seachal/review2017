@@ -1,0 +1,85 @@
+整个View树的绘图流程是在ViewRootImpl类的performTraversals()方法开始的
+该函数做的执行过程主要是根据之前设置的状态，判断是否重新计算视图大小(measure)、是否重新放置视图的位置(layout)、以及是否重绘 (draw)
+private void performTraversals() {
+        ......
+        //最外层的根视图的widthMeasureSpec和heightMeasureSpec由来
+        //lp.width和lp.height在创建ViewGroup实例时等于MATCH_PARENT
+        int childWidthMeasureSpec = getRootMeasureSpec(mWidth, lp.width);
+        int childHeightMeasureSpec = getRootMeasureSpec(mHeight, lp.height);
+        ......
+        mView.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+        ......
+        mView.layout(0, 0, mView.getMeasuredWidth(), mView.getMeasuredHeight());
+        ......
+        mView.draw(canvas);
+        ......
+    }
+一、measure
+public final void measure(int widthMeasureSpec, int heightMeasureSpec) {
+      onMeasure(widthMeasureSpec, heightMeasureSpec);
+ }
+ //一般会重写onMeasure方法
+protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec),
+            getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec));
+}
+
+二、layout
+public void layout(int l, int t, int r, int b) {
+       onLayout(changed, l, t, r, b);
+}
+protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+
+}
+三、draw
+public void draw(Canvas canvas) {
+    ......
+    /*
+     * Draw traversal performs several drawing steps which must be executed
+     * in the appropriate order:
+     *
+     *      1. Draw the background
+     *      2. If necessary, save the canvas' layers to prepare for fading
+     *      3. Draw view's content
+     *      4. Draw children
+     *      5. If necessary, draw the fading edges and restore layers
+     *      6. Draw decorations (scrollbars for instance)
+     */
+
+    // Step 1, draw the background, if needed
+    ......
+    if (!dirtyOpaque) {
+        drawBackground(canvas);
+    }
+
+    // skip step 2 & 5 if possible (common case)
+    ......
+
+    // Step 2, save the canvas' layers
+    ......
+        if (drawTop) {
+            canvas.saveLayer(left, top, right, top + length, null, flags);
+        }
+    ......
+
+    // Step 3, draw the content
+    if (!dirtyOpaque) onDraw(canvas);
+
+    // Step 4, draw the children
+    dispatchDraw(canvas);
+
+    // Step 5, draw the fade effect and restore layers
+    ......
+    if (drawTop) {
+        matrix.setScale(1, fadeHeight * topFadeStrength);
+        matrix.postTranslate(left, top);
+        fade.setLocalMatrix(matrix);
+        p.setShader(fade);
+        canvas.drawRect(left, top, right, top + length, p);
+    }
+    ......
+
+    // Step 6, draw decorations (scrollbars)
+    onDrawScrollBars(canvas);
+    ......
+}

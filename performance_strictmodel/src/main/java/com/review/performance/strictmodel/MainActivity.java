@@ -11,6 +11,7 @@ import android.os.Environment;
 import android.text.format.Formatter;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -95,15 +96,24 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 startActivity(new Intent(this, TwoActivity.class));
                 break;
             case R.id.btn_fun:
+//                Debug.startMethodTracing("myTrace2");
                 fun();
+//                Debug.stopMethodTracing();
                 break;
         }
     }
 
     private void fun() {
+        long start = System.currentTimeMillis();
         memoryInfo();
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
         System.out.println(bitmap);
+        String data=null;
+        for(int i=0;i<1000;i++){
+            data+="->"+i;
+        }
+        Toast.makeText(this,"完毕",Toast.LENGTH_SHORT).show();
+        long dur = System.currentTimeMillis() - start;
+        System.out.println("dur="+dur);
     }
-
 }
