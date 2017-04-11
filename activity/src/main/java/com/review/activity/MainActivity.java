@@ -19,6 +19,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         setContentView(R.layout.activity_main);
         findViewById(R.id.btn_changeIcon).setOnClickListener(this);
         findViewById(R.id.btn_changeOtherIcon).setOnClickListener(this);
+        findViewById(R.id.btn_configchange).setOnClickListener(this);
 
         //获取当前Component
         ComponentName component = getIntent().getComponent();
@@ -33,7 +34,9 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 break;
             case R.id.btn_changeOtherIcon:
                 changeIcon("com.review.activity.MainActivityAlias");
-
+                break;
+            case R.id.btn_configchange:
+                startActivity(new Intent(this,ConfigChangeActivity.class));
                 break;
         }
     }

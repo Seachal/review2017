@@ -29,6 +29,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ConfigChangeActivity"
+                  android:configChanges="orientation|keyboardHidden|navigation|screenSize"
+            />
         <!--
          activity-alias并不是代表一个Activity，而是代表一个已经存在的Activity的别名。
          -->
