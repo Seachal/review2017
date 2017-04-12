@@ -3,14 +3,6 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical">
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="portraiat"
-        android:textSize="20sp"
-        android:gravity="center"
-        />
     <TextView
         android:id="@+id/tv1"
         android:layout_width="match_parent"
@@ -19,7 +11,14 @@
         />
 
     <Button
-        android:id="@+id/btn1"
+        android:id="@+id/btn_portarit"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:text="竖屏的Button"
+        />
+
+    <FrameLayout
+        android:id="@+id/contentLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"></FrameLayout>
 </LinearLayout>

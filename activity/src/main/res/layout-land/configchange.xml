@@ -5,13 +5,6 @@
               android:orientation="vertical">
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="land"
-        android:textSize="20sp"
-        android:gravity="center"
-        />
-    <TextView
         android:id="@+id/tv1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -19,14 +12,14 @@
         />
 
     <Button
-        android:id="@+id/btn1"
+        android:id="@+id/btn_land"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="横屏的Button"
         />
-    <Button
-        android:id="@+id/btn2"
+
+    <FrameLayout
+        android:id="@+id/contentLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="横屏特有的Button"
-        />
+        android:layout_height="wrap_content"></FrameLayout>
 </LinearLayout>
