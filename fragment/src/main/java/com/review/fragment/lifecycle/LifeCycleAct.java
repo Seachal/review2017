@@ -1,6 +1,5 @@
 package com.review.fragment.lifecycle;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -28,11 +27,6 @@ public class LifeCycleAct extends FragmentActivity {
             super.onAttach(context);
             //当Fragment与Activity发生关联时调用。
             System.out.println("onAttach");
-        }
-
-        @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
         }
 
         @Override
@@ -88,16 +82,16 @@ public class LifeCycleAct extends FragmentActivity {
         }
 
         @Override
+        public void onDestroy() {
+            super.onDestroy();
+            System.out.println("onDestroy");
+        }
+        @Override
         public void onDetach() {
             super.onDetach();
             //与onAttach相对应，当Fragment与Activity关联被取消时调用
             System.out.println("onDetach");
         }
 
-        @Override
-        public void onDestroy() {
-            super.onDestroy();
-            System.out.println("onDestroy");
-        }
     }
 }

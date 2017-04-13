@@ -17,7 +17,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".retain.HomeActivity"
+            android:name=".HomeActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,6 +37,8 @@
         
         <activity android:name=".retain.FixProblemsActivity"></activity>
         <activity android:name=".lifecycle.LifeCycleAct" />
+        <activity android:name=".backstack.BackStackActivity"/>
+        <activity android:name=".retain.RetainHomeActivity"/>
     </application>
 
 </manifest>
