@@ -1,0 +1,4 @@
+1、MatrixCursor
+如果想得到一个Cursor, 而此时又没有数据库返回一个Cursor，此时可以通过MatrixCursor来返回一个Cursor
+2、CursorAdapter
+注意：如果使用CursorAdapter，Cursor必须包含一个 _id ,否则会报错
