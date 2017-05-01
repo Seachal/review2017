@@ -8,7 +8,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import com.review.view.custom.CustomActivity;
 import com.review.view.custom.CustomView;
+import com.review.view.custom.TestActivity;
+import com.review.view.views.FlowLayoutActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,5 +76,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 index++;
                 break;
         }
+    }
+
+    public void flowLayout(View v){
+        startActivity(new Intent(this, FlowLayoutActivity.class));
     }
 }

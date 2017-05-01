@@ -21,61 +21,71 @@ FrameLayout
 
 Activity被创建后，系统会调用它的attach方法来将Activity添加到ActivityThread当中
 final void attach(Context context, ActivityThread aThread...)(
-attachBaseContext(context);
-//创建一个PhoneWindow
-mWindow = new PhoneWindow(this, window);
-mWindow.setCallback(this);
+        attachBaseContext(context);
+        //创建一个PhoneWindow
+        mWindow = new PhoneWindow(this, window);
+        mWindow.setCallback(this);
 
 }
-Window聚合了DocerView,当用户调用setContentView的时候会把一颗View树仍给DocerView.
+PhoneWindow聚合了DocerView,当用户调用setContentView的时候会把一颗View树仍给DocerView.
 DecorView是PhoneWindow的一个内部类。实现很简单，它默认会包含一个灰色的标题栏，然后在标题栏下边会包含一个空白区域用来当用户调用setContentView的时候放置用户View，并传递事件
 我们在Activity中调用setContentView其实是调用PhoneWindow.setContentView，下面看下PhoneWindow的setContentView：
 
 public class PhoneWindow extends Window{
-private DecorView mDecor;
-private ViewGroup mContentParent; //android:id/decor_content_parent
-private ViewGroup mContentRoot; //R.id.content  内容布局区域
+    private DecorView mDecor;
+    private ViewGroup mContentParent; //对应R.id.content的FrameLayout容器，用来添加我们的内容布局
 
-    //DecorView是PhoneWindow的一个内部类
-	private final class DecorView extends FrameLayout{
+    @Override
+    public final View getDecorView() {
+        reutrn mDecor;
+    }
 
-	}
-}
-public void setContentView(View view, ViewGroup.LayoutParams params) {
-	if (mContentParent == null) {
-	     installDecor(); //生成DecorView、内容布局mContentParent
-	} else if (!hasFeature(FEATURE_CONTENT_TRANSITIONS)) {
-	    mContentParent.removeAllViews();
-	}
-	if (hasFeature(FEATURE_CONTENT_TRANSITIONS)) {
-		view.setLayoutParams(params);
-		final Scene newScene = new Scene(mContentParent, view);
-		transitionTo(newScene);
-	} else {
-		mContentParent.addView(view, params); //来将用户的View树添加到内容布局中。
-	}
-}
-private void installDecor() {
-	if (mDecor == null) {
-		mDecor =  new DecorView(getContext(), -1); //生成DecorView
+    @Override
+    public void setContentView(View view, ViewGroup.LayoutParams params) {
 
-	}
-	if (mContentParent == null) { //创建内容布局区域，id=R.id.content
-	    mContentParent = generateLayout(mDecor);
-	    mDecorContentParent = (DecorContentParent) mDecor.findViewById(
-                    R.id.decor_content_parent);
+        if (mContentParent == null) {
+           mDecor= new DecorView(context, featureId, this, getAttributes());
+           //根据不同的feature选择布局layout
+           int layoutResource = R.layout.screen_simple;
+           mDecor.onResourcesLoaded(mLayoutInflater, layoutResource); //将layout渲染出来，添加到DecorView中
+           /*
+           * final View root = inflater.inflate(layoutResource, null);
+           * addView(root, 0, new ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT));
+           * mContentRoot = (ViewGroup) root;
+           */
+           mContentParent = (ViewGroup)mDecor.findViewById(com.android.internal.R.id.content);
+           mDecor.setWindowBackground(background);//设置背景 mDecor.setBackgroundDrawable(drawable);
 
-	}
-}
+           final DecorContentParent decorContentParent = (DecorContentParent)mDecor.findViewById(R.id.decor_content_parent);
+           if (decorContentParent != null) {
+                mDecorContentParent = decorContentParent;
+            }else{
+               mTitleView = (TextView) findViewById(R.id.title); //标题
+            }
 
-protected ViewGroup generateLayout(DecorView decor) {
+        } else if (!hasFeature(FEATURE_CONTENT_TRANSITIONS)) {
+            mContentParent.removeAllViews();
+        }
 
-	View in = mLayoutInflater.inflate(layoutResource, null);
-	decor.addView(in, new ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT));
-	mContentRoot = (ViewGroup) in;
+        if (hasFeature(FEATURE_CONTENT_TRANSITIONS)) {
+            view.setLayoutParams(params);
+            final Scene newScene = new Scene(mContentParent, view);
+            transitionTo(newScene);
+        } else {
+            mContentParent.addView(view, params); //将我们的内容布局添加到R.id.content中
+        }
+    }
 
-	ViewGroup contentParent = (ViewGroup)findViewById(ID_ANDROID_CONTENT); //内容区域
 
-	//----------
-	return contentParent;
-}
+
+
+
+
+
+
+
+
+
+
+
+

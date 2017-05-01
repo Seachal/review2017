@@ -1,4 +1,4 @@
-package com.review.view;
+package com.review.view.custom;
 
 import android.annotation.TargetApi;
 import android.content.Context;

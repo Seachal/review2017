@@ -1,4 +1,5 @@
-package com.review.view;
+package com.review.view.views;
+
 
 import android.app.Activity;
 import android.customview.R;
@@ -8,10 +9,10 @@ import android.os.Bundle;
  * @author 张全
  */
 
-public class CustomActivity extends Activity {
+public class FlowLayoutActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.custom);
+        setContentView(R.layout.flowlayout);
     }
 }

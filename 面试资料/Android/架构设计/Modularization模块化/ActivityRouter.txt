@@ -1,0 +1,181 @@
+
+官网地址：https://github.com/mzule/ActivityRouter
+
+
+@Retention(RetentionPolicy.CLASS)
+public @interface Module {
+    String value();
+}
+
+每个Module project创建一个类，使用注解@Module,比如
+@Module("app")
+public class AppModule {
+
+}
+
+@Target({ElementType.TYPE, ElementType.METHOD})
+@Retention(RetentionPolicy.CLASS)
+public @interface Router {
+
+    //路径，即path，支持path参数替换
+    String[] value();  
+
+	//参数类型，用来指定Uri中传递的参数类型
+    String[] stringParams() default "";
+    String[] intParams() default "";
+    String[] longParams() default "";
+    String[] booleanParams() default "";
+    String[] shortParams() default "";
+    String[] floatParams() default "";
+    String[] doubleParams() default "";
+    String[] byteParams() default "";
+    String[] charParams() default "";
+    
+	//参数字段名替换 比如 id=>uid,将传递参数id，替换成uid
+    String[] transfer() default "";
+}
+
+基于编译时注解，在编译期间动态生成目标类：
+1、解析使用@Module
+比如
+@Module("app")
+public class AppModule {
+}
+
+则会生成RouterMapping_app.java
+public final class RouterMapping_app {
+  public static final void map() {
+  
+  }
+}  
+
+然后生成RouterInit.java
+public final class RouterInit {
+  public static final void init() {
+    RouterMapping_app.map(); //调用module类的map，生成路径匹配信息
+    RouterMapping_sdk.map();
+  }
+}
+2、调用路由
+如果没有初始化map，调用RouterInit.init(),
+解析Module中注册的所有@Router
+path<->(目标Activity、接受的参数信息)
+
+
+缺点：
+1、需要人工注入所有的module
+@Modules({"app", "sdk"})
+public class App extends Application implements RouterCallbackProvider {
+
+}
+ARouter无需人工注入Module，自动扫描
+
+2、严格按照指定位置替换参数
+比如path传值
+@Router("user/:userId/topic/:topicId/comment/:commentId")
+上面两种方式都是被支持的，分别定义了三个参数，userId,topicId,commentId
+之后通过getIntent().getStringExtra("userId");获取值
+根据path后的？传递参数
+比如：mzule://main?color=0xff878798&name=you+are+best来传递参数，
+getIntent().getStringExtra("color");  getIntent().getStringExtra("name");
+
+ARouter是以key-value的形式传递数据的，接收方可以自动注入@Inject，省去了获取参数的过程，而且无需指定参数类型
+
+3、拦截器使用不灵活
+没有优先级
+
+ARouter提供了拦截器实现，并支持优先级
+
+一、Router
+------------配置地址
+1、配置1个地址
+@Router("main") 
+public class MainActivity extends Activity {
+    ...
+}
+表示可以通过wlb://main来打开MainActivity了。
+2、配置多个地址
+@Router({"main", "root"})
+public class MainActivity extends Activity {
+    ...
+}
+这样就可以通过mzule://main来打开MainActivity了。
+
+------------传递参数
+1、支持获取 url 中?传递的参数
+@Router("main")
+上面的配置，可以通过mzule://main?color=0xff878798&name=you+are+best来传递参数，
+在MainActivity#onCreate中通过getIntent().getStringExtra("name")的方式来获取参数，所有的参数默认为String类型，但是可以通过配置指定参数类型，后面会介绍。
+
+2、支持在 path 中定义参数
+在path前加冒号 ：
+@Router("main/:color")
+通过:color的方式定义参数，参数名为color，访问mzule://main/0xff878798，可以在MainActivity#onCreate通过getIntent().getStringExtra("color")获取到 color 的值0xff878798
+
+3、支持多级 path 参数
+@Router("user/:userId/:topicId/:commentId")
+@Router("user/:userId/topic/:topicId/comment/:commentId")
+上面两种方式都是被支持的，分别定义了三个参数，userId,topicId,commentId
+
+4、支持指定参数类型
+@Router(value = "main/:color", intParams = "color")
+这样指定了参数color的类型为int，在MainActivity#onCreate获取 color 可以通过getIntent().getIntExtra("color", 0)来获取。
+支持的参数类型有int,long,short,byte,char,float,double,boolean，默认不指定则为String类型。
+
+5、支持参数 transfer
+@Router(value = "item", longParams = "id", transfer = "id=>itemId")
+这里通过transfer = "id=>itemId"的方式，设定了 url 中名称为id的参数会被改名成itemId放到参数Bundle中，类型为long. 
+值得注意的是，这里，通过longParams = "id"或者longParams = "itemId"都可以设置参数类型为long.
+
+------------支持优先适配
+@Router("user/:userId")
+public class UserActivity extends Activity {
+    ...
+}
+
+@Router("user/statistics")
+public class UserStatisticsActivity extends Activity {
+    ...
+}
+不支持优先适配的情况下，mzule://user/statistics可能会适配到@Router("user/:userId")，并且userId=statistics
+支持优先适配，意味着，mzule://user/statistics会直接适配到@Router("user/statistics")，不会适配前一个@Router("user/:userId")
+
+------------支持 Http(s) 协议
+
+@Router({"http://mzule.com/main", "main"})
+AndroidManifest.xml
+<activity
+    android:name="com.github.mzule.activityrouter.router.RouterActivity"
+    android:theme="@android:style/Theme.NoDisplay">
+    ...
+    <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="http" android:host="mzule.com" />
+    </intent-filter>
+</activity>
+
+这样，http://mzule.com/main和mzule://main都可以映射到同一个 Activity，值得注意的是，在@Router中声明http协议地址时，需要写全称。
+
+--------------支持应用内调用
+Routers.open(context, "mzule://main/0xff878798")
+Routers.open(context, Uri.parse("mzule://main/0xff878798"))
+Routers.openForResult(activity, "mzule://main/0xff878798", REQUEST_CODE);
+Routers.openForResult(activity, Uri.parse("mzule://main/0xff878798"), REQUEST_CODE);
+// 获取 Intent
+Intent intent = Routers.resolve(context, "mzule://main/0xff878798")
+
+--------------支持获取原始 url 信息
+getIntent().getStringExtra(Routers.KEY_RAW_URL);
+
+
+
+
+
+
+
+
+
+
+
