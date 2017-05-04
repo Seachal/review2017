@@ -4,12 +4,5 @@
     <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
         <!-- Customize your theme here. -->
     </style>
-    <style name="test" >
-
-    </style>
-    <!-- 带包名-->
-    <style name="test2" parent="com.review.base.demo:test">
-
-    </style>
 
 </resources>

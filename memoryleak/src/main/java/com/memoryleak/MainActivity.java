@@ -1,4 +1,4 @@
-package com.review.base.demo;
+package com.memoryleak;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -11,15 +11,9 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
     }
 
-    public void matrixCursor(View view) {
-        startActivity(new Intent(this, CursorAdapterActivity.class));
-
-    }
-
-    public void runtimeExec(View view) {
-        startActivity(new Intent(this,RuntimeExecActivity.class));
+    public void twoActivity(View view) {
+        startActivity(new Intent(this,TwoActivity.class));
     }
 }

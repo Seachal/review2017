@@ -1,0 +1,10 @@
+adb无线调试
+1、先将手机通过数据线连接到电脑上
+2、重启adb
+adb kill-server
+adb start-server
+3、端口映射
+adb tcpip 5555
+4、连接
+adb connect <ip>
+其中ip为手机当前连接wifi的ip地址
