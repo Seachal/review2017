@@ -34,6 +34,11 @@ public class Fragment2 extends Fragment {
         textView.setText(TAG);
         return textView;
     }
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        System.out.println(TAG+"------------onViewCreated");
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {

@@ -19,6 +19,7 @@ public class Fragment1 extends Fragment {
         System.out.println(TAG+"------------onAttach");
     }
 
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,6 +34,12 @@ public class Fragment1 extends Fragment {
         textView.setTextSize(30);
         textView.setText(TAG);
         return textView;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        System.out.println(TAG+"------------onViewCreated");
     }
 
     @Override
