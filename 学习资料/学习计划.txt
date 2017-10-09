@@ -1,0 +1,43 @@
+1、Rxjava深入学习
+2、dagger2
+3、LocalBrodcastReceiverManager
+4、support.v4
+5、新版本特性
+6、aspectj 切面
+7、编写编译时注解
+8、LayoutInflater
+原理、主题换肤
+9、深入分析OkHttp
+10、深入分析Glide
+响应式编程风格
+11、浏览器调试数据库、SharePreference、SD卡等
+12、support.design
+13、RelativeLayout、LinearLayout、FramenLayout比较
+14、封装通用的RecycleView
+嵌套RecycleView（横滑+纵滑）、天猫vlayout
+15、异步UI
+16、InstantApp
+17、动态加载View
+
+
+Gradle插件学习：
+Groovy语法、Gradle DSL、Gradle插件、如何开源项目、Gradle task...
+
+长期任务
+1、java编码规范
+2、虚拟机原理
+3、GC
+4、算法
+时间复杂度、空间复杂度
+
+开发任务
+1、封装自己的util
+常用工具类、定位、分享、微信支付、支付宝支付、图片选择缩放
+2、基础框架
+BaseActivity 滑动关闭页面
+BaseFragment
+MVP架构？
+
+
+
+

@@ -4,8 +4,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.review.base.demo.MyListView
-        android:id="@+id/listview"
+    <Button
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"></com.review.base.demo.MyListView>
+        android:layout_height="wrap_content"
+        android:onClick="inflateView"
+        android:text="inflate" />
 </LinearLayout>

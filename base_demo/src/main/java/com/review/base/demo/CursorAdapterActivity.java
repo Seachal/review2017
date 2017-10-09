@@ -17,7 +17,7 @@ import android.widget.TextView;
  */
 
 public class CursorAdapterActivity extends Activity {
-    String[] columns=new String[]{"NAME","username","age"};
+    String[] columns = new String[]{"_id", "NAME", "username"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,9 +29,9 @@ public class CursorAdapterActivity extends Activity {
          * 如果想得到一个Cursor, 而此时又没有数据库返回一个Cursor，此时可以通过MatrixCursor来返回一个Cursor
          */
         MatrixCursor matrixCursor = new MatrixCursor(columns);
-        matrixCursor.addRow(new Object[]{1,"jack1","111"});
-        matrixCursor.addRow(new Object[]{2,"jack2","222"});
-        matrixCursor.addRow(new Object[]{3,"jack3","333"});
+        for (int i = 1; i <= 20; i++) {
+            matrixCursor.addRow(new Object[]{i, "jack" + i, i + "" + i + "" + i});
+        }
 
         while(matrixCursor.moveToNext()){
             int id = matrixCursor.getInt(matrixCursor.getColumnIndex(columns[0]));
@@ -46,6 +46,7 @@ public class CursorAdapterActivity extends Activity {
 
     /**
      * 注意：如果使用CursorAdapter，Cursor必须包含一个 _id ,否则会报错
+     * bindView会调用多次
      */
     public class MyCursorAdapter extends CursorAdapter{
 

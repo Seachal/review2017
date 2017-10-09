@@ -18,5 +18,11 @@
         android:onClick="runtimeExec"
         android:text="Runtime Exec" />
 
+    <Button
+        style="@com.review.base.demo:style/btn_style"
+        android:text="inflate"
+        android:textColor="@com.review.base.demo:color/red"
+        android:onClick="inflateView" />
+
 
 </LinearLayout>

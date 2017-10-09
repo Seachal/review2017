@@ -16,10 +16,13 @@ public class MainActivity extends Activity {
 
     public void matrixCursor(View view) {
         startActivity(new Intent(this, CursorAdapterActivity.class));
-
     }
 
     public void runtimeExec(View view) {
         startActivity(new Intent(this,RuntimeExecActivity.class));
+    }
+
+    public void inflateView(View view) {
+        startActivity(new Intent(this, LayoutInflaterActivity.class));
     }
 }
