@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-apply from: '../config/quality.gradle'
+apply from: '../config/quality.gradle' //引入配置
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"

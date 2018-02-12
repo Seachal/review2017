@@ -1,13 +1,16 @@
 package com.review.performance.strictmodel;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Trace;
 import android.text.format.Formatter;
 import android.view.View;
 import android.widget.TextView;
@@ -27,6 +30,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         tv_memoryInfo = (TextView) findViewById(R.id.tv_memory);
+        findViewById(R.id.tv_trace).setOnClickListener(this);
         findViewById(R.id.btn_rw).setOnClickListener(this);
         findViewById(R.id.btn_leak).setOnClickListener(this);
         findViewById(R.id.btn_fun).setOnClickListener(this);
@@ -34,6 +38,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
         ViewServer.get(this).addWindow(this);
 
         memoryInfo();
+        traceTest();
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+    private void traceTest() {
+
+        Trace.beginSection("traceTest");
+        memoryInfo();
+        Trace.endSection();
     }
 
     private void memoryInfo() {
@@ -73,6 +86,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.tv_trace:
+                startActivity(new Intent(this, TraceActivity.class));
+                break;
             case R.id.btn_rw:
                 File file = new File(Environment.getExternalStorageDirectory(), "detect.txt");
                 try {

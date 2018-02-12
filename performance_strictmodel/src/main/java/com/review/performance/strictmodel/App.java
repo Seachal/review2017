@@ -1,7 +1,11 @@
 package com.review.performance.strictmodel;
 
 import android.app.Application;
+import android.content.Context;
 import android.os.StrictMode;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * @author 张全
@@ -57,5 +61,23 @@ public class App extends Application {
              */
         }
         super.onCreate();
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        try {
+            Class<?> trace = Class.forName("android.os.Trace");
+            Method setAppTracingAllowed = trace.getDeclaredMethod("setAppTracingAllowed", boolean.class);
+            setAppTracingAllowed.invoke(null, true);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
     }
 }

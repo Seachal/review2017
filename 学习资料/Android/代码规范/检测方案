@@ -2,6 +2,8 @@
 http://mp.weixin.qq.com/s/-yKylnQT8-Je4PIpgBe52g?utm_source=tuicool&utm_medium=referral
 http://blog.csdn.net/yulyu/article/details/54973494
 
+参照：config/quality 目录下的配置
+
 在项目中使用四种插件lint、findBugs、PMD、 CheckStyles 检测提高代码质量。
 一、Lint
 检测范围:
