@@ -29,7 +29,7 @@ android.util.AndroidRuntimeException: Calling startActivity() from outside of an
 静态注册：manifest.xml中注册
 动态注册
 registerReceiver(receiver,filter); //注册广播
-unregisterReceiver(sdcardStateReceiver); //注销广播
+unregisterReceiver(receiver); //注销广播
 
 2、本地广播
 只能在应用内发送、接收，不能在manifest.xml中注册

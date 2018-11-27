@@ -1,9 +1,12 @@
 
 一、获取当前线程执行到这里的栈信息
+方法一：
 StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 for (StackTraceElement element : stackTrace) {
     System.out.println(element);
 }
+方法二：
+Thread.dumpStack()
 
 比如打印：
 java.lang.Thread.getStackTrace(Thread.java:1589)

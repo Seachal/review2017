@@ -17,7 +17,7 @@ public class Activity extends ContextThemeWrapper
        .........
         mWindow = new PhoneWindow(this, window);
         mWindow.setWindowControllerCallback(this);
-        mWindow.setCallback(this); //将Activity注入到PhoneWindow中，
+        mWindow.setCallback(this); //将Activity注入到PhoneWindow中，mWindow持有了Activity的引用，，因此，事件是从Window传递给了Activity
        ........
     }
 }

@@ -124,7 +124,7 @@ Java 中，int 类型变量的长度是一个固定值，与平台无关，都�
 
 3. 标记-整理
 复制算法在对象存活率较高的情况下就要进行较多的复制操作，更重要的是该算法浪费一半的内存空间，
-为了解决该问题，出现了标记—整理算法：其标记的过程和“标记-清除”算法一样，而整理的过程则是让所有存活的对象都想另外一端移动，然后直接清理掉端边界以外的内存。
+为了解决该问题，出现了标记—整理算法：其标记的过程和“标记-清除”算法一样，而整理的过程则是让所有存活的对象都向另外一端移动，然后直接清理掉端边界以外的内存。
 (也就是让存活的对象都聚在一起，把边界不使用的内存回收掉)
 缺点：
 1、暂停当前应用的运行，非实时性的回收。
@@ -190,7 +190,6 @@ Collection
     --TreeMap
 
 
-
 LinkedHashMap和PriorityQueue的区别？
 LinkedHashMap 维持的是元素插入的顺序。
 PriorityQueue 是一个优先级队列,保证最高或者最低优先级的的元素总是在队列头部，与插入顺序无关.要求元素实现Comparable或者传入Comparator
@@ -207,7 +206,10 @@ WeakHashMap 的工作与正常的 HashMap 类似，但是使用弱引用作为 k
 你可以使用 Arrays.toString() 和 Arrays.deepToString() 方法来打印数组。由于数组没有实现 toString() 方法，所以如果将数组传递给 System.out.println() 方法，将无法打印出数组的内容
 
 遍历ArrayList时如何正确移除一个元素？
-应该使用CopyOnWriteArrayList
+应该使用 Iterator<E> iterator=list.iterator()
+         while(iterator.hasNext()){
+            E e=iteraotr.next();
+         }
 
 SimpleDateFormat是线程安全的吗?
 DateFormat 的所有实现，包括 SimpleDateFormat 都不是线程安全的。建议将 SimpleDateFormat 限制在 ThreadLocal 中
@@ -215,7 +217,8 @@ DateFormat 的所有实现，包括 SimpleDateFormat 都不是线程安全的。
 7. java 虚拟机的特性(百度、乐视)
 Java语言的一个非常重要的特点就是与平台的无关性。而使用Java虚拟机是实现这一特点的关键。
 一般的高级语言如果要在不同的平台上运行，至少需要编译成不同的目标代码。
-而引入Java语言虚拟机后，Java语言在不同平台上运行时不需要重新编译。Java语言使用模式Java虚拟机屏蔽了与具体平台相关的信息，使得Java语言编译程序只需生成在Java虚拟机上运行的目标代码（字节码），就可以在多种平台上不加修改地运行。Java虚拟机在执行字节码时，把字节码解释成具体平台上的机器指令执行。
+而引入Java语言虚拟机后，Java语言在不同平台上运行时不需要重新编译。Java语言使用模式Java虚拟机屏蔽了与具体平台相关的信息，
+Java虚拟机在执行字节码时，把字节码解释成具体平台上的机器指令执行。
 
 8. 哪些情况下的对象会被垃圾回收机制处理掉(乐视、美团、小米)
 1）不再被引用的对象 2）内存不足的情况下下，那些使用软引用、弱引用的对象。
@@ -505,6 +508,11 @@ ArrayList:默认大小是10，当容量满了,size=oldsize+oldsize/2; 最大容�
 http://lvable.com/?p=217
 
 HashMap:
+HashMap由数组+链表组成的，数组是HashMap的主体，链表则是主要为了解决哈希冲突而存在的，
+如果定位到的数组位置不含链表（当前entry的next指向null）,那么对于查找，添加等操作很快，仅需一次寻址即可；
+如果定位到的数组包含链表，对于添加操作，其时间复杂度为O(n)，首先遍历链表，存在即覆盖，否则新增；
+对于查找操作来讲，仍需遍历链表，然后通过key对象的equals方法逐一比对查找。所以，性能考虑，HashMap中的链表出现越少，性能才会越好。
+
 我们第一次新建一个HashMap对象的时候，默认的容量是16，若你只打算在HashMap里放入3个元素那将浪费至少13个空间。
 Java库里的HashMap其实是一个连续的链表数组，通过让key计算hash值后插入对应的index里。当hash值发生碰撞时，可以采用线性探测，二次hash，或者后面直接变成链表的结构来避免碰撞。因为hash的值不是连续的，所以hashmap实际需要占用的大小会比它实际能装的item的容量要大。
 LoadFactor:
@@ -718,12 +726,54 @@ WeakReference<String> weakReference = new WeakReference<>(str);
 6. 蚁群算法与蒙特卡洛算法
 7. 写出你所知道的排序算法及时空复杂度,稳定性(小米)
 其他
-1. 死锁的四个必要条件
-2. 常见编码方式;utf-8 编码中的中文占几个字节;int 型几个字节
+1. 死锁的四个必要条件？
+public class ThreadDeadlock {
+
+    public static void main(String[] args) throws InterruptedException {
+        Object obj1 = new Object();
+        Object obj2 = new Object();
+
+       //让obj1和obj2两个锁对象在同步块中互相等待
+        Thread t1 = new Thread(new SyncThread(obj1, obj2), "t1"); //线程1在等待obj2同步锁，而线程2正在使用obj2同步锁
+        Thread t2 = new Thread(new SyncThread(obj2, obj3), "t2"); //线程2在等待obj1同步锁，而线程1正在使用obj1同步锁
+
+        t1.start();
+        Thread.sleep(5000);
+        t2.start();
+    }
+
+}
+
+class SyncThread implements Runnable{
+    private Object obj1;
+    private Object obj2;
+
+    public SyncThread(Object o1, Object o2){
+        this.obj1=o1;
+        this.obj2=o2;
+    }
+    @Override
+    public void run() {
+        synchronized (obj1) {
+             work();
+             synchronized (obj2) { //互相等待
+                work();
+             }
+        }
+    }
+    private void work() {
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+2. 常见编码方式;utf-8 编码中的中文占几个字节;int 型几个字节？
 一个汉字一般占3个字节
 一个数字占1个字节
 一个字母占1个字节
-3. 实现一个 Json 解析器(可以通过正则提高速度)
+3. 实现一个 Json 解析器(可以通过正则提高速度)？
 
 
 

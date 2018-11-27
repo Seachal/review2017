@@ -3,7 +3,7 @@ http://blog.csdn.net/lmj623565791/article/details/37970961
 http://blog.csdn.net/lmj623565791/article/details/37992017
 
 1、生命周期
-onAttach...onCreate...onCreateView..onActivityCreated..onStart..onResume..onPause..onStop..onDestroyView..onDestroy..onDetach
+onAttach...onCreate...onCreateView..onViewCreated...onActivityCreated..onStart..onResume..onPause..onStop..onDestroyView..onDestroy..onDetach
 2、通过FragmentManager在代码中添加和在xml中使用<fragment name="">标签添加
 3、在Fragment中直接使用startActivityForResult();
 不能使用getActivity().startActivityForResult();
@@ -54,9 +54,9 @@ private void addOrShowFragment(FragmentTransaction transaction, Fragment fragmen
         } else {
             transaction.hide(currentFragment).show(fragment).commit();
         }
-        currentFragment.setUserVisibleHint(false);
+        currentFragment.setUserVisibleHint(false); //上一个
         currentFragment = (BaseFragment) fragment;
-        currentFragment.setUserVisibleHint(true);
+        currentFragment.setUserVisibleHint(true); //下一个
     }
 
 

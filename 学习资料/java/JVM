@@ -22,7 +22,7 @@ JVM的类加载是通过ClassLoader及其子类来完成的
 属于应用程序根据自身需要自定义的ClassLoader，如tomcat、jboss都会根据j2ee规范自行实现ClassLoader
 2、类加载器的委托机制
 加载过程中会先检查类是否被已加载，检查顺序是自底向上，从Custom ClassLoader到BootStrap ClassLoader逐层检查，只要某个classloader已加载就视为已加载此类，保证此类只所有ClassLoader加载一次。
-而加载的顺序是自顶向下，也就是由上层来逐层尝试加载此类。
+而加载的顺序是自上向下，也就是由上层来逐层尝试加载此类。
 
 三、简述堆和栈的区别
 JVM 中堆和栈属于不同的内存区域，使用目的也不同。
