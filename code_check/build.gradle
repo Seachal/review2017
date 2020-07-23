@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-apply from: '../config/quality.gradle' //引入配置
+//apply from: '../config/quality.gradle' //引入配置
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
@@ -20,6 +20,6 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:25.1.0'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:25.1.0'
 }
