@@ -7,7 +7,6 @@ List 接口的大小可变数组的实现,元素是有序的。
 默认容量为10，当容量不够时自动增长  size=oldSize+oldSize/2;
 
 public class ArrayList<E> extends AbstractList<E> implements Cloneable, Serializable, RandomAccess{
-private static final int MIN_CAPACITY_INCREMENT = 12;//数组增长的最小size
 transient Object[] array;
 int size;
 protected transient int modCount = 0; //改变次数，比如add，remove，iterator and list iterator迭代的时候，如果去修改数据，则会抛出异常
@@ -114,10 +113,9 @@ public boolean add(E object) {
                 }
            }
 }
-ArrayList内部采用数组实现，数组长度不够时自动增长，如果元素个数<6 则增长12个，否则增长当前数组长度的一半。
 1、add
 将元素添加到数组的末尾
-2、add(index)
+2、add(index,obj)
 将原index和index之后的元素后移1位，然后将元素插入到index位置
 3、remove(index)
 将原index之后的元素前移1位，然后将最后一个元素=null。
@@ -130,6 +128,13 @@ final void checkForComodification() {
 但是可以调用iterator进行add、remove、set操作。
 
 ------------------------------------Vector
+默认数组大小为10，当数组满了后，双倍扩容
+也可以通过构造函数传入默认大小和每次的扩容大小
+public Vector(int initialCapacity, int capacityIncrement)
+initialCapacity:初始化数组大小
+capacityIncrement：数组满了后，数组的扩容大小,0表示双倍扩容
+
+
 List 接口的大小可变数组的实现,元素是有序的。除了同步外，和ArrayList功能类似。对于get方法也使用同步，因此会造成性能浪费，
 如果需要同步，建议使用CopyOnWriteArrayList。
 public class Vector<E> extends AbstractList<E> implements List<E>,RandomAccess, Cloneable, Serializable

@@ -6,44 +6,117 @@ public class User implements Serializable{
     //密码不序列化
     public transient  String passowrd;
 }
+
 JDK 1.7特性？
-然 JDK 1.7不像 JDK 5 和 8 一样的大版本，但是，还是有很多新的特性，
 1)try-with-resource 语句，这样你在使用流或者资源的时候，就不需要手动关闭，Java 会自动关闭。
 比如：
- try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-       return br.readLine();
-   }
+        try (BufferedReader br = new BufferedReader(new FileReader("D://obj.txt"))) {
+            String line = br.readLine();
+        }
 这种在try后面加个括号，再初始化对象的语法就叫try-with-resources。
-只有实现了java.lang.AutoCloseable接口，或者java.io.Closable（实际上继随自java.lang.AutoCloseable）接口的对象，才会自动调用其close()函数。
+操作的类只要是实现了AutoCloseable接口就可以在try语句块退出的时候自动调用close方法关闭流资源。
 上面代码效果相当于下面的代码：
-BufferedReader br=null;
-    try {
-         br = new BufferedReader(new FileReader(path));
-        return br.readLine();
-    } catch(Throwable suppressedException) {
-         if (br != null) {
-                try {
+
+        BufferedReader br = new BufferedReader(new FileReader("D://obj.txt"));
+        Throwable var1 = null;
+        try {
+            String line = br.readLine();
+        } catch (Throwable var11) {
+            var1 = var11;
+            throw var11;
+        } finally {
+            if (br != null) {
+                if (var1 != null) {
+                    try {
+                        br.close();
+                    } catch (Throwable var10) {
+                        var1.addSuppressed(var10);
+                    }
+                } else {
                     br.close();
-                }catch(Throwable e) {
-                    e.addSuppressed(suppressedException);
-                    throw e;
                 }
-           }
-        throw suppressedException;
-    }
+            }
+        }
 
 2)Fork-Join 池某种程度上实现 Java 版的 Map-reduce。
+故名思义，拆分fork+合并join
+思想:充分利用多核CPU把计算拆分成多个子任务，并行计算，提高CPU利用率大大减少运算时间。
 3)允许 Switch 中有 String 变量和文本。
+        String str = "a";
+        switch (str) {
+            case "a":
+                break;
+            default:
+                break;
+        }
 4)菱形操作符(\<>)用于类型推断，不再需要在变量声明的右边申明泛型，因此可以写出可读写更强、更简洁的代码
 比如 List<String> list=new ArrayList<>();
 
 JDK 1.8特性？
 java 8 在 Java 历史上是一个开创新的版本，下面 JDK 8 中 5 个主要的特性：
-Lambda 表达式，允许像对象一样传递匿名函数
-Stream API，充分利用现代多核 CPU，可以写出很简洁的代码
-Date 与 Time API，最终，有一个稳定、简单的日期和时间库可供你使用
-扩展方法：现在，接口中可以有静态、默认方法。
-重复注解：现在你可以将相同的注解在同一类型上使用多次。
+1、Lambda 表达式，允许像对象一样传递匿名函数
+2、Stream API，充分利用现代多核 CPU，可以写出很简洁的代码
+3、Date 与 Time API，最终，有一个稳定、简单的日期和时间库可供你使用
+4、接口中可以有静态、默认方法。
+public interface MyInterface {
+
+   public static void fun(){
+    System.out.println("静态方法");
+   }
+   public default  void fun2(){
+      System.out.println("在返回值前+default，然后其子类的实现类中进行调用，子类中也可以重写");
+   }
+
+}
+public class MyInterfaceImpl implements  MyInterface {
+    @Override
+    public void fun2() {
+     //重写
+    }
+}
+
+5、重复注解：现在你可以将相同的注解在同一类型上使用多次。
+@Repeatable注解表明标记的注解可以多次应用于相同的声明或类型
+
+//定义注解
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Repeatable(RepeatAnnotations.class) //注解容器
+public @interface RepeatAnnotation {
+    String value() default  "";
+}
+
+//注解容器
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface RepeatAnnotations {
+    RepeatAnnotation[] value();
+}
+
+//使用重复注解
+@RepeatAnnotation("aa")
+@RepeatAnnotation("bbb")
+public class RepeatAnnotationImpl {
+
+    public static void main(String[] args) {
+        boolean annotationPresent = RepeatAnnotationImpl.class.isAnnotationPresent(RepeatAnnotations.class);
+        if(annotationPresent){
+           //通过注解容器获取注解
+            RepeatAnnotations annotations = RepeatAnnotationImpl.class.getAnnotation(RepeatAnnotations.class);
+            RepeatAnnotation[] values = annotations.value();
+            for(RepeatAnnotation annotation:values){
+                System.out.println(annotation);
+            }
+
+            /**输出
+             * @com.terry.java_demo.jdk8.RepeatAnnotation(value=aa)
+             * @com.terry.java_demo.jdk8.RepeatAnnotation(value=bbb)
+             */
+        }
+    }
+}
+
+
 
 -------------------------------------面试题
 面向对象的三大特征？
@@ -188,6 +261,7 @@ Collection
     --HashMap
          --LinkedHashMap
     --TreeMap
+
 
 
 LinkedHashMap和PriorityQueue的区别？
@@ -745,18 +819,18 @@ public class ThreadDeadlock {
 }
 
 class SyncThread implements Runnable{
-    private Object obj1;
-    private Object obj2;
+    private Object lock1;
+    private Object lock2;
 
     public SyncThread(Object o1, Object o2){
-        this.obj1=o1;
-        this.obj2=o2;
+        this.lock1=o1;
+        this.lock2=o2;
     }
     @Override
     public void run() {
-        synchronized (obj1) {
+        synchronized (lock1) {
              work();
-             synchronized (obj2) { //互相等待
+             synchronized (lock2) { //互相等待
                 work();
              }
         }
