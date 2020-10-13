@@ -4,13 +4,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 public class MainActivity extends Activity implements View.OnClickListener {
     LocalBroadcastManager localBroadcastManager;
     LocalReceiver localReceiver;
-    static String ACTION="com.intent.action.test";
+    static String ACTION = "com.intent.action.test";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

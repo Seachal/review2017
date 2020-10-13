@@ -2,12 +2,13 @@ package com.review.fragment.backstack;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.view.View;
+
+import androidx.core.app.Fragment;
+import androidx.core.app.FragmentActivity;
+import androidx.core.app.FragmentManager;
+import androidx.core.app.FragmentTransaction;
 
 import com.review.fragment.R;
 

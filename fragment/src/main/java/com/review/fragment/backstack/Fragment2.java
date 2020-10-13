@@ -4,19 +4,21 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.core.app.Fragment;
+
 
 public class Fragment2 extends Fragment {
-    private static final String TAG="Fragment2";
+    private static final String TAG = "Fragment2";
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        System.out.println(TAG+"------------onAttach");
+        System.out.println(TAG + "------------onAttach");
     }
 
     @Override

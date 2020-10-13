@@ -20,7 +20,7 @@
         </activity>
 
         <!-- 可配置多个入口，在桌面上会显示图标-->
-        <activity android:name=".TwoActivity"
+       <!-- <activity android:name=".TwoActivity"
             android:label="其他入口"
             android:icon="@mipmap/ic_launcher"
             >
@@ -28,7 +28,7 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity>-->
         <activity android:name=".ConfigChangeActivity"
                   android:configChanges="orientation|keyboardHidden|navigation|screenSize"
             />

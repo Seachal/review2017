@@ -27,7 +27,7 @@
         <activity android:name=".file.FileActivity" />
 
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="@string/file_authority"
             android:exported="false"
             android:grantUriPermissions="true">
